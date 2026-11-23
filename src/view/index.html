@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sunset Ticker</title>
+  <link rel="stylesheet" href="view.css?v=__V__">
+  <script type="module" src="view.js?v=__V__"></script>
+</head>
+<body>
+  <!-- Start screen: pick the PDF (it is read locally, never uploaded) -->
+  <main id="start">
+    <h1>Sunset Ticker</h1>
+    <p>Pick the PDF to present. It stays on this laptop.</p>
+    <label class="btn">Choose PDF
+      <input id="file" type="file" accept="application/pdf,.pdf" hidden>
+    </label>
+    <p id="msg" role="status"></p>
+    <p class="keys">→ ← PageUp PageDown Space: change slide · B: black screen · F: full screen</p>
+  </main>
+
+  <!-- Presenting: only the slide is visible -->
+  <div id="stage" hidden>
+    <div id="slide"></div>
+    <p id="hint">Click or press F for full screen</p>
+  </div>
+
+  <div id="black" aria-hidden="true"></div>
+
+  <!-- Connection status dot: grey = no remote paired yet (relay comes in M2) -->
+  <div id="dot" class="grey" title="Waiting, no remote paired yet"></div>
+</body>
+</html>

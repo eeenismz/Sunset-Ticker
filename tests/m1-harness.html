@@ -1,0 +1,92 @@
+<!doctype html><meta charset="utf-8"><title>M1 harness</title>
+<body style="margin:0"><pre id="out">running</pre><div id="host"></div>
+<script>
+// Usage: m1-harness.html?pdf=wide60&w=1280&h=720  (also ?pdf=fake for the non-PDF case)
+const q = new URLSearchParams(location.search);
+const W = +q.get('w') || 1280, H = +q.get('h') || 720, name = q.get('pdf') || 'wide60';
+const res = {checks: {}, errors: [], dpr: devicePixelRatio, w: W, h: H};
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function until(fn, ms = 15000) { const t = Date.now(); while (Date.now() - t < ms) { const v = fn(); if (v) return v; await sleep(50); } return null; }
+(async () => {
+  try {
+    const f = document.createElement('iframe');
+    f.style.cssText = `width:${W}px;height:${H}px;border:0;display:block`;
+    f.src = '../dist/view/'; document.getElementById('host').appendChild(f);
+    await until(() => f.contentDocument && f.contentDocument.getElementById('file') && f.contentDocument.readyState === 'complete');
+    const win = f.contentWindow, d = f.contentDocument;
+    win.addEventListener('error', e => res.errors.push('err:' + e.message));
+    win.addEventListener('unhandledrejection', e => res.errors.push('rej:' + e.reason));
+    const origErr = win.console.error; win.console.error = (...a) => { res.errors.push('console.error:' + a.join(' ')); origErr.apply(win.console, a); };
+    const ext = name === 'fake' ? 'fake.txt' : name + '.pdf';
+    const blob = await (await fetch('fixtures/' + ext)).blob();
+    const dt = new DataTransfer(); dt.items.add(new File([blob], ext, {type: name === 'fake' ? 'text/plain' : 'application/pdf'}));
+    const input = d.getElementById('file'); input.files = dt.files; input.dispatchEvent(new Event('change'));
+    const key = (k, o = {}) => d.dispatchEvent(new f.contentWindow.KeyboardEvent('keydown', Object.assign({key: k, bubbles: true, cancelable: true}, o)));
+    const canvasText = () => d.querySelector('#slide canvas');
+    if (name === 'fake') {
+      await sleep(2500);
+      res.msg = d.getElementById('msg').textContent;
+      res.startHidden = d.getElementById('start').hidden; res.stageHidden = d.getElementById('stage').hidden;
+      res.fileValue = input.value;
+    } else {
+      await until(() => canvasText());
+      const info = () => { const c = canvasText(); if (!c) return null; const r = c.getBoundingClientRect(); return {css: [r.width, r.height], back: [c.width, c.height], left: r.left, top: r.top, right: W - r.right, bottom: H - r.bottom}; };
+      res.page1 = info();
+      res.hint = !d.getElementById('hint').hidden;
+      res.cursor = win.getComputedStyle(d.getElementById('stage')).cursor;
+      res.dot = win.getComputedStyle(d.getElementById('dot')).backgroundColor;
+      // page number detection: pixel at fixture is hard; use cache via render order -> we track by tapping into replaceChildren
+      let shown = []; const slide = d.getElementById('slide'); const orig = slide.replaceChildren.bind(slide);
+      slide.replaceChildren = (c) => { shown.push(1); orig(c); };
+      // we can't read the page var; probe by exposing through canvas identity count + ordering test using Home/End
+      // Instead: compare canvas pixels to reference renders per page via data URL hash
+      const hash = () => { const c = canvasText(); const g = c.getContext('2d'); const w = c.width, h = c.height; const im = g.getImageData(0, 0, w, h).data; let s = 0; for (let i = 0; i < im.length; i += 97) s = (s * 31 + im[i]) | 0; return s; };
+      const settle = async () => { await sleep(1200); return hash(); };
+      const h1 = hash();
+      const seq = {};
+      async function go(k, o) { key(k, o); return settle(); }
+      // map page hash by walking forward 1..N with ArrowRight (slow but also checks next)
+      const hashes = [h1];
+      for (let i = 2; i <= 6; i++) hashes.push(await go('ArrowRight'));
+      res.walkUnique = new Set(hashes).size; // expect 6
+      // 5 fast presses from page 1: Home then 5x ArrowRight with no wait -> should equal hashes[5] (page 6)
+      await go('Home'); res.homeIs1 = hash() === h1;
+      for (let i = 0; i < 5; i++) key('ArrowRight');
+      res.fast5IsPage6 = (await settle()) === hashes[5];
+      // each next key
+      const pg = async (k, o) => { await go('Home'); await go('ArrowRight'); await go('ArrowRight'); return go(k, o); }; // from page 3
+      res.page3 = hashes[2];
+      for (const k of ['ArrowRight', 'ArrowDown', 'PageDown', ' ']) res['next_' + JSON.stringify(k)] = (await pg(k)) === hashes[3];
+      for (const [k, o] of [['ArrowLeft'], ['ArrowUp'], ['PageUp'], [' ', {shiftKey: true}]]) res['prev_' + k + (o ? '_shift' : '')] = (await pg(k, o)) === hashes[1];
+      // clamps
+      await go('Home'); res.prevAt1 = (await go('ArrowLeft')) === h1;
+      await go('End'); const last = hash();
+      res.nextAtEnd = (await go('ArrowRight')) === last; res.pgdnAtEnd = (await go('PageDown')) === last;
+      res.endDiffersFromFirst = last !== h1;
+      // walk back from end 59 times -> must be page1
+      for (let i = 0; i < 59; i++) key('ArrowLeft');
+      res.back59IsPage1 = (await settle()) === h1;
+      for (let i = 0; i < 5; i++) key('ArrowLeft'); res.extraBackStill1 = (await settle()) === h1;
+      // End label = page 60? press End after 5 fast back; compare to walking 59 forward
+      for (let i = 0; i < 70; i++) key('ArrowRight'); const f70 = await settle(); res.fwd70EqualsEnd = f70 === last;
+      // black
+      const black = d.getElementById('black');
+      key('b'); res.black_b = black.classList.contains('on'); key('B'); res.black_off = !black.classList.contains('on');
+      key('.'); res.black_dot = black.classList.contains('on');
+      key('ArrowLeft'); res.blackStaysOnAfterPage = black.classList.contains('on'); key('.'); res.dotOff = !black.classList.contains('on');
+      res.hintAfterKey = !d.getElementById('hint').hidden;
+      // ctrl combos ignored
+      key('b', {ctrlKey: true}); res.ctrlBIgnored = !black.classList.contains('on');
+      // resize
+      if (q.get('resize')) {
+        const [nw, nh] = q.get('resize').split('x').map(Number);
+        f.style.width = nw + 'px'; f.style.height = nh + 'px';
+        await sleep(2500);
+        const c = canvasText(), r = c.getBoundingClientRect();
+        res.resized = {w: nw, h: nh, css: [r.width, r.height], back: [c.width, c.height], left: r.left, top: r.top, right: nw - r.right, bottom: nh - r.bottom};
+      }
+    }
+  } catch (e) { res.errors.push('harness:' + e.stack); }
+  const txt = JSON.stringify(res, null, 1); document.getElementById('out').textContent = 'DONE ' + txt; fetch('m1-sink.php?tag=' + (q.get('tag') || 'x'), {method: 'POST', body: txt});
+})();
+</script>
