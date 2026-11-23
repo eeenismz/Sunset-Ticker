@@ -19,6 +19,11 @@
 - 2026-11-23 Theme moved forward: designed and built right after M1, before M2 (Ee's call), so every test shows the real look. Vibe is an original neon Miami-sunset feel inspired by GTA VI's mood; no Rockstar logo, Pricedown font, characters or artwork.
 - 2026-11-23 Device name shown to other phones is auto-detected ("iPhone · iOS 18"), not typed. Timer reset goes back to 0:00 and waits for the next Next.
 
+- 2026-11-23 Local Firebase stand-in (`src/shared/fake-db.js`, `?fakedb` in the URL): same path-based API as the Firebase wrapper in `db.js`, backed by localStorage so laptop and phone frames of one browser can pair. Lets M2+ be tested without the Firebase project; build.sh excludes it from dist/. It applies no security rules, so rules still need one real-Firebase test.
+- 2026-11-23 A phone only auto-resumes a saved room if it still holds it (`meta.remote === uid`); after the laptop's R release it does not grab the room back, so a backup phone can pair. A phone also checks `meta.remote` before the claim transaction, because Firebase may answer a held room with permission-denied instead of an aborted transaction.
+- 2026-11-23 Accepted for v1: room codes are 6 digits and the `meta` of any room is readable by any signed-in user, so codes can be probed and a free room claimed by anyone who guesses the code. Mitigated by the one-phone lock, the R release and the laptop owning all state.
+- 2026-11-23 If Firebase is not configured or unreachable (8 s timeout), the laptop goes straight to the slides, keyboard-only.
+
 ## Rejected Approaches
 - 2026-11-23 Firebase Hosting (spec's choice): dropped for the droplet, see Decisions.
 - 2026-11-23 Vite (mentioned in the spec as an option): rejected to keep the no-build, plain-JS stack.
@@ -38,3 +43,5 @@
 - 2026-11-23 Duplicate mode often drops to a shared resolution (sometimes 4:3), so slides must be fit with letterboxing and re-rendered on resize.
 - 2026-11-23 Realtime Database rules cascade: a `.write` granted on a parent can't be taken away on a child. Remote permissions must be granted only on the specific child paths.
 - 2026-11-23 Theme mockups made (design-system/): sunset-sun-over-grid art on the start panel and phone moments only; main remote view stays plain dark. Buttons use dark ink (#1a0830) on the pink-orange gradient because white on pink fails AA. Anton is Latin-only, so Thai/Japanese text never uses it. Awaiting Ee's approval before building.
+- 2026-11-23 `database.rules.json` ends every room with `$other: .validate false`: any new path (M3 state/cmds/thumbs) is rejected until the rules are extended and re-pasted in the console.
+- 2026-11-23 For driving headless Chrome over DevTools, Node 24 at ~/.nvm/versions/node/v24.16.0 has a built-in WebSocket (Node 18, the nvm default, doesn't); see tests/m2-cdp.mjs.

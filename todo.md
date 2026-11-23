@@ -3,13 +3,14 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] M2 code: rooms, QR pairing, one-phone lock, R release, heartbeats + status dots, idle/stale cleanup, phone join/Showtime/Disconnect; QA 10/10 locally, review fixes applied (2026-11-23)
 - [x] Full screen hint shows whenever the slide isn't full screen, also after Esc, and lists the slide keys (→ ← PgUp PgDn Space, B) (2026-11-23)
 - [x] Theme mockups approved (1a plain phone main view, 2a glowing dot, 3a dark ink buttons); laptop start screen, hint pill, neon dot, favicon built (2026-11-23)
 - [x] M1 laptop viewer: QA passed (keys, clamping, black, letterbox 16:9/4:3/A4, retina, bad file), review fixes applied (2026-11-23)
 - [x] Read v1 spec, list risks and open questions, propose structure, data shape and milestones (2026-11-23)
 
 ## In Progress
-- [ ] M2 — waiting for the Firebase project (Ee creates it in the console)
+- [ ] M2 — code done and tested locally; waiting for Ee: Firebase project, rules, deploy
 
 ## Pending
 
@@ -23,19 +24,23 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Screen Wake Lock on the laptop so it never dims mid-sermon
 - Done check: 60-page PDF opens, flips with keyboard and a Bluetooth clicker, B toggles black, cursor hidden, no UI visible, 4:3 and 16:9 window both letterbox correctly
 
-### M2 — Room, pairing, status dot on both sides
-- [ ] Firebase project (Realtime Database + Anonymous Auth), config in `src/shared/firebase.js`
-- [ ] `database.rules.json` (room lock to first phone, size limits, stale-room delete)
-- [ ] Laptop: create 6-digit room, show QR + code, hide them when the phone pairs
-- [ ] Phone `/remote`: join by QR link or typed 6-digit code; room locks to that phone (one device at a time)
-- [ ] Show which device is connected; a second phone sees "In use by <device>" and is refused
-- [ ] Heartbeat every 2 s each side; dot grey / green / yellow (>3 s) / red (>10 s)
-- [ ] Lazy cleanup of rooms idle > 2 h when a new room is created; "End session" deletes the room
-- [ ] Laptop key to release the remote and show the QR again (backup phone)
-- [ ] First HTTPS deploy to the droplet at estains-tech.com/apps/sunset-ticker/ (needed for real iPhone tests from here on)
+### M2 — Room, pairing, status dot on both sides (code done 2026-11-23; real-Firebase test + deploy waiting on Ee)
+- [ ] BLOCKED (Ee): Firebase project (Realtime Database in Singapore + Anonymous Auth), fill `src/shared/firebase-config.js`, add estains-tech.com to Auth authorized domains
+- [x] `database.rules.json` (room lock to first phone, size limits, stale-room delete) — written and reviewed, not yet pasted into the console
+- [ ] BLOCKED (Ee): paste rules in the console, then one real-Firebase test pass (claim on a held room, stale delete by a 2nd laptop, roomIndex query, pairing)
+- [x] Laptop: create 6-digit room, show QR + code, hide them when the phone pairs ("Connected" moment ~2 s, "Start without phone", slide keys skip pairing)
+- [x] Phone `/remote`: join by QR link or typed 6-digit code; room locks to that phone (one device at a time); rejoins after reload
+- [x] Show which device is connected; a second phone sees "In use by <device>" and is refused
+- [x] Heartbeat every 2 s each side; dot grey / green / yellow (>3.5 s) / red (>10 s)
+- [x] Lazy cleanup of rooms idle > 2 h when a new room is created; laptop deletes its room on close or after 2 h idle; phone "Disconnect" releases the lock
+- [x] R key on the laptop releases the phone and shows the QR again (backup phone)
+- [ ] BLOCKED (Ee): first HTTPS deploy to the droplet at estains-tech.com/apps/sunset-ticker/ (needed for real iPhone tests)
+- [x] Local Firebase stand-in (`?fakedb`, src/ only, never in dist/) so pairing is testable without the Firebase project
 - Done check: pair from iPhone over mobile data; second phone is refused; turn phone Wi-Fi/data off → yellow then red within ~10 s; back on → green; room gone from the database after End session
 
 ### M3 — Next / prev / goto + thumbnail grid
+- [ ] Extend database.rules.json for state / cmds / thumbs / timer (`$other` blocks new paths) and re-paste in the console
+- [ ] Phone commands must count as laptop activity (else the 2 h idle end kills a live session)
 - [ ] Laptop renders ~15 KB JPEG thumbnails and pushes them progressively
 - [ ] Command queue (phone pushes, laptop applies in order and removes); laptop owns `state.page`
 - [ ] Phone main view: current page, next-page preview, page X of Y, big Next/Prev, swipe
@@ -58,7 +63,8 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 
 ### Theme — Neon sunset (original art only), moved before M2 on 2026-11-23
 - [x] Theme tokens, self-hosted display font, split-panel start screen with original sunset art (SVG/CSS)
-- [ ] QR card + "Connected" moment styling (with M2), all phone screens (with M2/M3)
+- [x] QR card + "Connected" moment, phone join / In use / Showtime / Disconnect screens (M2)
+- [ ] Phone main controls + thumbnail grid styling (with M3)
 - [ ] Neon status dot, "Showtime" / "That's a wrap" moments (phone only)
 - [x] App icon: sun setting behind a single slide (PWA icon sizes with M5)
 - Done check: projector slides untouched; no third-party logos or artwork; looks right on iPhone and laptop
