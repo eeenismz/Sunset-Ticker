@@ -50,8 +50,6 @@ fileEl.addEventListener('change', async () => {
   stageEl.hidden = false;
   goTo(1);
   keepAwake();
-  // The hint is visible on the projector if full screen isn't on yet; don't leave it there.
-  setTimeout(hideHintForGood, 8000);
 });
 
 // ---------- Render cache ----------
@@ -144,13 +142,9 @@ stageEl.addEventListener('click', () => {
   if (!document.fullscreenElement) toggleFullscreen();
 });
 
-let hintDone = false; // set after the first slide key (or 8 s), so the hint never comes back
-function hideHintForGood() {
-  hintDone = true;
-  hintEl.hidden = true;
-}
+// The hint shows whenever the slide is not full screen (also after Esc), and hides in full screen.
 document.addEventListener('fullscreenchange', () => {
-  hintEl.hidden = hintDone || !!document.fullscreenElement;
+  hintEl.hidden = !!document.fullscreenElement;
 });
 
 // ---------- Keyboard and Bluetooth clickers ----------
@@ -175,7 +169,6 @@ document.addEventListener('keydown', (e) => {
 
   if (handled) {
     e.preventDefault(); // stop Space / arrows from scrolling
-    hideHintForGood();
   }
 });
 

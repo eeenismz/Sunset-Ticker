@@ -7,7 +7,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Read v1 spec, list risks and open questions, propose structure, data shape and milestones (2026-11-23)
 
 ## In Progress
-- [ ] M2 — waiting for the Firebase project (Ee creates it in the console)
+- [ ] Theme (moved before M2): product-designer mockups for Ee's approval, then build
 
 ## Pending
 
@@ -54,7 +54,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [ ] Auto-resume: room code saved locally; on return or reload, rejoin and land on the laptop's current page
 - Done check: installed PWA on iPhone survives app switch, lock/unlock and being killed, rejoining without a rescan; screen stays on for 10+ min; no gesture zooms or bounces
 
-### M6 — Neon sunset theme (original art only)
+### Theme — Neon sunset (original art only), moved before M2 on 2026-11-23
 - [ ] Theme tokens, self-hosted display font, split-panel start screen with original sunset art (SVG/CSS)
 - [ ] Neon status dot, "Showtime" / "That's a wrap" moments (phone only)
 - [ ] App icon: sun setting behind a single slide

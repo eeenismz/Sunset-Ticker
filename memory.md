@@ -15,7 +15,8 @@
 - 2026-11-23 Timer counts up from the first Next (phone or keyboard); its start time lives in the room so it survives a phone reload.
 
 - 2026-11-23 Changing slides while the black screen is on keeps it black (lets the presenter line up the next slide during prayer); only B / "." or the phone turns it off. Unlike PowerPoint, where any key un-blacks.
-- 2026-11-23 The "press F for full screen" hint hides for good after the first slide key or 8 s, since in Duplicate mode the audience sees it.
+- 2026-11-23 The "Click or press F for full screen" hint shows whenever the slide isn't full screen (also after Esc) and hides only in full screen. Ee chose this over hiding it after the first key; the audience sees it if presenting without full screen.
+- 2026-11-23 Theme moved forward: designed and built right after M1, before M2 (Ee's call), so every test shows the real look. Vibe is an original neon Miami-sunset feel inspired by GTA VI's mood; no Rockstar logo, Pricedown font, characters or artwork.
 - 2026-11-23 Device name shown to other phones is auto-detected ("iPhone · iOS 18"), not typed. Timer reset goes back to 0:00 and waits for the next Next.
 
 ## Rejected Approaches
