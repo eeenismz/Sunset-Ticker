@@ -7,7 +7,8 @@ cd "$(dirname "$0")"
 V=$(date +%Y%m%d%H%M%S)
 rm -rf dist
 mkdir dist
-rsync -a --exclude '.DS_Store' src/ dist/
+# shared/fake-db.js is a local test stand-in for Firebase and never ships.
+rsync -a --exclude '.DS_Store' --exclude 'shared/fake-db.js' src/ dist/
 
 # Source files link with "?v=__V__"; replace the placeholder with this build's stamp.
 # (sed -i '' is the macOS form.)

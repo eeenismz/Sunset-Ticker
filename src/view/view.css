@@ -70,8 +70,26 @@ html, body {
 }
 
 .lead { margin: 0; max-width: 460px; font-size: 22px; line-height: 1.45; color: var(--text-soft); }
+.lead b { color: var(--text); font-weight: 600; }
 
-.actions { display: flex; align-items: center; gap: 24px; }
+/* Chosen file: name and page count, shown above the lead once a PDF is open */
+.file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  border-radius: var(--r-md);
+  background: var(--night-2);
+  border: 1px solid var(--line);
+  font-size: 18px;
+  max-width: 480px;
+}
+.file-chip small { color: var(--text-soft); font-size: 15px; }
+.file-chip .ok { color: var(--st-green); font-weight: 700; }
+
+/* Narrow panels: the quiet "Start without phone" drops onto its own row instead of squeezing the labels */
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+.left .btn { min-height: 72px; }   /* start-screen buttons, as in mockup 1a/1b */
 
 /* Buttons: dark ink on the pink-orange gradient (AA-safe, see DESIGN.md) */
 .btn {
@@ -91,10 +109,46 @@ html, body {
   text-transform: uppercase;
   box-shadow: var(--glow-pink);
   cursor: pointer;
+  white-space: nowrap;   /* a label never breaks onto two lines */
 }
 .btn:focus-within { outline: none; box-shadow: var(--focus); }
+/* Secondary buttons: outline only (teal ghost, small quiet text) */
+.btn.ghost { background: transparent; color: var(--teal); box-shadow: inset 0 0 0 2px var(--teal), var(--glow-teal); }
+.btn.quiet {
+  background: transparent;
+  color: var(--text-soft);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 0 22px;
+  min-height: 48px;
+}
 
 .msg { min-height: 1.4em; margin: 0; font-size: 16px; color: var(--text); }
+#msg.error { color: #ff9aa5; }
+
+/* Generic status dot (pairing status line). Same colours as #dot below */
+.dot {
+  --c: var(--st-grey);
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 6px var(--c), 0 0 16px var(--c);
+  flex: none;
+}
+.dot.grey   { --c: var(--st-grey); }
+.dot.green  { --c: var(--st-green); }
+.dot.yellow { --c: var(--st-yellow); }
+.dot.red    { --c: var(--st-red); }
+.dot.pulse { animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse {
+  50% { opacity: .35; }
+}
 
 /* Key list as kbd chips */
 .keys {
@@ -232,6 +286,7 @@ kbd {
   box-shadow: 0 30px 80px rgba(0, 0, 0, .55), var(--glow-pink);
 }
 .qr {
+  box-sizing: border-box;   /* size includes the white padding, as in the mockup */
   width: 252px;
   height: 252px;
   margin: 0 auto 22px;
@@ -239,6 +294,7 @@ kbd {
   background: #fff;
   border-radius: 14px;
 }
+.qr svg { display: block; width: 100%; height: 100%; }
 .qr.empty {
   background: transparent;
   border: 3px dashed rgba(255, 244, 240, .28);
@@ -266,6 +322,88 @@ kbd {
   text-shadow: 0 0 22px rgba(25, 227, 208, .55);
 }
 .code.empty { color: var(--text-dim); text-shadow: none; }
+.pair .how { margin: 8px 0 0; font-size: 16px; line-height: 1.45; color: var(--text-soft); }
+.status-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: 17px;
+  color: var(--text);
+}
+
+/* ---------- Connected moment (full screen, about 2 s after pairing) ---------- */
+#moment {
+  position: fixed;
+  inset: 0;
+  z-index: 8;            /* above the start screen and the black screen, below #hint and #dot */
+  display: grid;
+  place-items: center;
+}
+#moment:not([hidden]) { animation: moment-in .4s ease both; }
+#moment .art { --horizon: 30%; --sun-w: min(640px, 60vw); --palm-h: min(700px, 95vh); }
+@keyframes moment-in {
+  from { opacity: 0; }
+}
+.moment-card {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 48px 80px 44px;
+  border-radius: 34px;
+  background: rgba(10, 7, 32, .8);
+  border: 1px solid rgba(255, 244, 240, .22);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--glow-pink);
+}
+.moment-card .display { font-size: 128px; }
+.moment-card .dev {
+  margin: 18px 0 0;
+  font-size: 30px;
+  font-weight: 600;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+}
+.moment-card .dev .dot { width: 18px; height: 18px; }
+/* Progress bar: the fill grows from 0 to full in 2 s; a static full bar under reduced motion */
+.bar {
+  margin: 30px auto 0;
+  width: 360px;
+  max-width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 244, 240, .14);
+  overflow: hidden;
+}
+.bar i {
+  display: block;
+  height: 100%;
+  background: var(--grad-btn);
+  box-shadow: var(--glow-pink);
+  transform-origin: 0 50%;   /* grow from the left edge */
+  animation: bar-fill 2s linear both;
+}
+@keyframes bar-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.moment-card .sub { margin: 14px 0 0; color: var(--text-soft); font-size: 18px; }
+
+/* Short laptop windows: smaller QR and code so the whole card still fits */
+@media (max-height: 760px) {
+  .qr { width: 200px; height: 200px; margin-bottom: 16px; }
+  .code { font-size: 72px; }
+  /* Left column: smaller logo and tighter gaps so the logo and key list stay on screen */
+  .left { gap: 18px; }
+  .logo img { width: 64px; height: 64px; border-radius: 16px; }
+  .logo h1 { font-size: 72px; }
+  .keys { padding-top: 16px; row-gap: 8px; }
+}
 
 /* ---------- Presenting ---------- */
 #stage {
@@ -376,4 +514,7 @@ kbd {
   }
   .qr { width: 200px; height: 200px; margin-bottom: 16px; }
   .code { font-size: 72px; }
+  .moment-card { width: calc(100% - 32px); padding: 32px 24px 28px; border-radius: 26px; }
+  .moment-card .display { font-size: 80px; }
+  .moment-card .dev { font-size: 22px; }
 }

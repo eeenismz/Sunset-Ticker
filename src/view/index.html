@@ -37,11 +37,17 @@
         <img src="../assets/icon.svg" alt="">
         <h1 class="display"><span class="tilt grad-text">Sunset</span><br><span class="tilt outline-text">Ticker</span></h1>
       </div>
-      <p class="lead">Pick the PDF to present. It stays on this laptop.</p>
+      <!-- Shown after a PDF is picked: name and page count -->
+      <div id="fileChip" class="file-chip" hidden><span class="ok">&#10003;</span><span><span id="fileName"></span><br><small id="filePages"></small></span></div>
+      <!-- Lead text changes between "pick" (before a PDF) and "pair" (PDF open, waiting for phone) -->
+      <p id="leadPick" class="lead">Pick the PDF to present. It stays on this laptop.</p>
+      <p id="leadPair" class="lead" hidden>Open Sunset Ticker on your iPhone, then scan the code or type it. <b>The PDF stays on this laptop.</b></p>
       <div class="actions">
-        <label class="btn">Choose PDF
+        <label id="fileBtn" class="btn"><span id="fileBtnText">Choose PDF</span>
           <input id="file" type="file" accept="application/pdf,.pdf" hidden>
         </label>
+        <!-- Shown once a PDF is open: present on the laptop alone, no phone needed -->
+        <button id="startNoPhone" type="button" class="btn quiet" hidden>Start without phone</button>
       </div>
       <p id="msg" class="msg" role="status"></p>
       <dl class="keys">
@@ -54,11 +60,13 @@
       <div class="art" aria-hidden="true">
         <i class="stars"></i><svg class="sun"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg>
       </div>
-      <!-- Pairing card: empty placeholder until a PDF is picked (QR and code come in M2) -->
+      <!-- Pairing card: placeholder until a PDF is picked, then QR, code and waiting status -->
       <div class="pair">
-        <div class="qr empty">Pick a PDF and your QR code appears here</div>
+        <div id="qr" class="qr empty">Pick a PDF and your QR code appears here</div>
         <div class="label">Room code</div>
-        <div class="code empty">--- ---</div>
+        <div id="roomCode" class="code empty">--- ---</div>
+        <p id="pairHow" class="how" hidden>Scan with the iPhone Camera, or type the code in the Sunset Ticker app.</p>
+        <div id="pairStatus" class="status-line" hidden><span class="dot grey pulse"></span><span id="pairStatusText">Waiting for your phone</span></div>
       </div>
     </section>
   </main>
@@ -77,6 +85,21 @@
   </div>
 
   <div id="black" aria-hidden="true"></div>
+
+  <!-- Connected moment: full-screen card for about 2 s after the phone pairs, then the slides -->
+  <div id="moment" hidden>
+    <div class="art" aria-hidden="true">
+      <i class="stars"></i><svg class="sun"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg>
+    </div>
+    <div class="moment-card">
+      <div class="label">Phone paired</div>
+      <h2 class="display"><span class="tilt grad-text">Connected</span></h2>
+      <p class="dev"><span class="dot green"></span><span id="momentDevice">iPhone</span></p>
+      <!-- The fill animates from 0 to full over 2 s each time #moment is shown -->
+      <div class="bar"><i></i></div>
+      <p class="sub">Starting your slides&hellip;</p>
+    </div>
+  </div>
 
   <!-- Connection status dot: grey = no remote paired yet (relay comes in M2) -->
   <div id="dot" class="grey" title="Waiting, no remote paired yet"></div>
