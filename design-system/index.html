@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sunset Ticker: theme mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: #05030f; color: var(--text); font-family: var(--font-body); }
+.page { width: 1900px; padding: 48px 56px 96px; }
+.page > header h1 { font-family: var(--font-display); font-weight: 400; font-size: 44px; margin: 0; letter-spacing: var(--track-display); text-transform: uppercase; }
+.page > header p { color: var(--text-soft); max-width: 900px; line-height: 1.5; }
+.sw { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0 8px; }
+.sw span { width: 120px; padding: 40px 10px 8px; border-radius: 12px; font: 12px/1.3 ui-monospace, Menlo, monospace; color: #fff; text-shadow: 0 1px 2px #000; border: 1px solid var(--line); }
+h2.sec { font-family: var(--font-display); font-weight: 400; font-size: 28px; letter-spacing: .05em; text-transform: uppercase; color: var(--teal); margin: 72px 0 6px; }
+.note { color: var(--text-soft); margin: 0 0 24px; font-size: 15px; }
+.row { display: flex; flex-wrap: wrap; gap: 48px 48px; align-items: flex-start; }
+figure { margin: 0; }
+figure:has(> .phone) { width: 390px; }
+figcaption { margin-top: 14px; font-size: 14px; color: var(--text-soft); }
+figcaption b { color: var(--text); }
+
+/* ---- scaled laptop frame: real 1440x900 inside, shown at 58% ---- */
+.lap-wrap { width: 835px; height: 522px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 20px 60px rgba(0,0,0,.6); position: relative; }
+.lap { width: 1440px; height: 900px; transform: scale(.58); transform-origin: 0 0; position: absolute; left: 0; top: 0; background: var(--night); overflow: hidden; }
+
+/* ======================= SHARED ART ======================= */
+.art { position: absolute; inset: 0; overflow: hidden; --horizon: 30%; --sun-w: 380px; background: var(--grad-sunset); }
+.art::before { content: ""; position: absolute; inset: 0; background: var(--tex-grain); opacity: .16; mix-blend-mode: overlay; z-index: 6; pointer-events: none; }
+.art::after  { content: ""; position: absolute; inset: 0; background: var(--tex-scan); opacity: .45; z-index: 6; pointer-events: none; }
+.art .stars { position: absolute; inset: 0 0 55% 0; background:
+  radial-gradient(1.5px 1.5px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 28% 8%, #fff, transparent),
+  radial-gradient(1.5px 1.5px at 44% 22%, #fff, transparent), radial-gradient(1px 1px at 61% 10%, #fff, transparent),
+  radial-gradient(1.5px 1.5px at 77% 20%, #fff, transparent), radial-gradient(1px 1px at 90% 7%, #fff, transparent),
+  radial-gradient(1px 1px at 6% 34%, #ffd, transparent), radial-gradient(1px 1px at 53% 33%, #ffd, transparent), radial-gradient(1px 1px at 95% 30%, #ffd, transparent); }
+.art .sun { position: absolute; left: 50%; transform: translateX(-50%); width: var(--sun-w); height: var(--sun-w); bottom: calc(var(--horizon) - var(--sun-w) * .30); filter: drop-shadow(0 0 40px rgba(255,46,136,.6)); }
+.art .floor { position: absolute; left: 0; right: 0; bottom: 0; height: var(--horizon); background: linear-gradient(180deg, #2a0a4a 0%, #0a0720 70%); border-top: 2px solid var(--teal); box-shadow: 0 -2px 24px rgba(25,227,208,.55); overflow: hidden; z-index: 2; }
+.art .floor::before { content: ""; position: absolute; left: -60%; right: -60%; top: 0; bottom: -40%;
+  background: repeating-linear-gradient(90deg, rgba(255,46,136,.75) 0 2px, transparent 2px 70px), repeating-linear-gradient(0deg, rgba(255,46,136,.75) 0 2px, transparent 2px 38px);
+  transform: perspective(260px) rotateX(58deg); transform-origin: 50% 0; }
+.art .floor::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, #0a0720 100%); }
+.art .palm { position: absolute; z-index: 3; fill: #07041a; bottom: calc(var(--horizon) - 28px); height: var(--palm-h, 520px); width: calc(var(--palm-h, 520px) * .6125); }
+.art .palm.l { left: 24px; } .art .palm.r { right: -10px; transform: scaleX(-1) scale(.8); transform-origin: bottom center; }
+.art .dim { position: absolute; inset: 0; z-index: 4; }
+
+/* ======================= COMPONENTS ======================= */
+.dot { --c: var(--st-grey); display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 6px var(--c), 0 0 16px var(--c); flex: none; }
+.dot.grey { --c: var(--st-grey); } .dot.green { --c: var(--st-green); } .dot.yellow { --c: var(--st-yellow); } .dot.red { --c: var(--st-red); }
+.dot.pulse { animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+
+.display { font-family: var(--font-display); font-weight: 400; text-transform: uppercase; letter-spacing: var(--track-display); line-height: .95; margin: 0; }
+.tilt { display: inline-block; transform: var(--tilt); }
+.grad-text { background: var(--grad-text); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 14px rgba(255,46,136,.5)); }
+.outline-text { color: transparent; -webkit-text-stroke: 2px var(--teal); filter: drop-shadow(0 0 10px rgba(25,227,208,.6)); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: var(--tap); padding: 0 40px; border: 0; border-radius: var(--r-pill); background: var(--grad-btn); color: var(--ink); font-family: var(--font-display); font-size: 26px; letter-spacing: .06em; text-transform: uppercase; box-shadow: var(--glow-pink); cursor: pointer; }
+.btn:focus-visible { outline: none; box-shadow: var(--focus); }
+.btn.ghost { background: transparent; color: var(--teal); box-shadow: inset 0 0 0 2px var(--teal), var(--glow-teal); }
+.btn.quiet { background: transparent; color: var(--text-soft); box-shadow: inset 0 0 0 1px var(--line); font-family: var(--font-body); font-size: 16px; font-weight: 600; letter-spacing: 0; text-transform: none; padding: 0 22px; min-height: 48px; }
+.btn.off { background: rgba(255,244,240,.08); color: var(--text-dim); box-shadow: none; }
+.btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+kbd { font: 600 14px ui-monospace, Menlo, Consolas, monospace; color: var(--text); background: rgba(255,244,240,.08); border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 8px; padding: 3px 9px; white-space: nowrap; }
+
+/* ======================= LAPTOP START ======================= */
+.start { display: grid; grid-template-columns: 1fr 1fr; height: 100%; }
+.start .left { position: relative; padding: 0 88px; display: flex; flex-direction: column; justify-content: center; gap: 28px; background: radial-gradient(700px 500px at 0% 100%, rgba(255,46,136,.18), transparent 70%), radial-gradient(500px 400px at 100% 0%, rgba(25,227,208,.10), transparent 70%), var(--night); }
+.start .left::after { content: ""; position: absolute; inset: 0; background: var(--tex-grain); opacity: .06; mix-blend-mode: screen; pointer-events: none; }
+.start .right { position: relative; }
+.logo { display: flex; align-items: center; gap: 22px; }
+.logo img { width: 84px; height: 84px; border-radius: 20px; box-shadow: var(--glow-pink); }
+.logo h1 { font-size: 92px; line-height: .88; }
+.start .lead { font-size: 22px; line-height: 1.45; color: var(--text-soft); margin: 0; max-width: 460px; }
+.start .lead b { color: var(--text); font-weight: 600; }
+.start .actions { display: flex; align-items: center; gap: 24px; }
+.start .btn { min-height: 72px; font-size: 32px; padding: 0 56px; }
+.msg { min-height: 1.4em; margin: 0; font-size: 16px; color: var(--text); }
+.keys { display: grid; grid-template-columns: auto auto; justify-content: start; gap: 12px 18px; align-items: center; margin: 8px 0 0; padding: 22px 0 0; border-top: 1px solid var(--line); font-size: 17px; color: var(--text-soft); }
+.keys dt { display: flex; gap: 6px; } .keys dd { margin: 0; }
+.file-chip { display: inline-flex; align-items: center; gap: 14px; padding: 12px 20px; border-radius: var(--r-md); background: var(--night-2); border: 1px solid var(--line); font-size: 18px; max-width: 480px; }
+.file-chip small { color: var(--text-soft); font-size: 15px; }
+.file-chip .ok { color: var(--st-green); font-weight: 700; }
+
+.pair { position: absolute; z-index: 5; left: 50%; top: 46%; transform: translate(-50%, -50%); width: 430px; padding: 34px 34px 30px; text-align: center; border-radius: 30px; background: rgba(10,7,32,.78); border: 1px solid rgba(255,244,240,.22); backdrop-filter: blur(10px); box-shadow: 0 30px 80px rgba(0,0,0,.55), var(--glow-pink); }
+.qr { width: 252px; height: 252px; margin: 0 auto 22px; padding: 14px; background: #fff; border-radius: 14px; }
+.qr svg { display: block; width: 100%; height: 100%; }
+.qr.empty { background: transparent; border: 3px dashed rgba(255,244,240,.28); display: grid; place-items: center; color: var(--text-dim); font-size: 16px; line-height: 1.4; padding: 30px; }
+.label { font-size: 13px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--text-soft); }
+.code { font-family: var(--font-display); font-size: 92px; line-height: 1; letter-spacing: .1em; margin: 6px 0 4px; padding-left: .1em; text-shadow: 0 0 22px rgba(25,227,208,.55); }
+.code.empty { color: var(--text-dim); text-shadow: none; }
+.pair .how { margin: 8px 0 0; font-size: 16px; line-height: 1.45; color: var(--text-soft); }
+.status-line { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 17px; color: var(--text); }
+
+.moment { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; }
+.moment .card { text-align: center; padding: 48px 80px 44px; border-radius: 34px; background: rgba(10,7,32,.8); border: 1px solid rgba(255,244,240,.22); backdrop-filter: blur(10px); box-shadow: var(--glow-pink); }
+.moment .card .display { font-size: 128px; }
+.moment .dev { margin: 18px 0 0; font-size: 30px; font-weight: 600; display: flex; gap: 14px; align-items: center; justify-content: center; }
+.moment .dev .dot { width: 18px; height: 18px; }
+.bar { margin: 30px auto 0; width: 360px; height: 6px; border-radius: 3px; background: rgba(255,244,240,.14); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 70%; background: var(--grad-btn); box-shadow: var(--glow-pink); }
+.moment .sub { margin: 14px 0 0; color: var(--text-soft); font-size: 18px; }
+
+/* ======================= LAPTOP PRESENTING OVERLAY ======================= */
+.stage { background: #000; position: absolute; inset: 0; display: grid; place-items: center; }
+.stage .slide { width: 1440px; height: 810px; }
+.stage .slide svg { display: block; width: 100%; height: 100%; }
+.hint { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); margin: 0; padding: 9px 18px; border-radius: var(--r-pill); background: rgba(10,7,32,.82); border: 1px solid rgba(255,244,240,.22); color: var(--text); font-size: 14px; display: flex; gap: 8px; align-items: center; white-space: nowrap; }
+.hint kbd { font-size: 12px; padding: 1px 7px; border-bottom-width: 2px; }
+.stage .dot { position: absolute; right: 10px; bottom: 10px; width: 10px; height: 10px; box-shadow: 0 0 5px var(--c), 0 0 12px var(--c); opacity: .85; }
+.black { background: #000; position: absolute; inset: 0; }
+.legend { display: grid; grid-template-columns: repeat(4, auto); gap: 14px 40px; align-items: center; padding: 28px 32px; background: var(--night-2); border-radius: var(--r-lg); width: 835px; }
+.legend div { display: flex; align-items: center; gap: 14px; font-size: 15px; }
+.legend .dot { width: 30px; height: 30px; }
+.legend .zoom { grid-column: 1 / -1; }
+.legend .hint { position: static; transform: none; font-size: 28px; padding: 16px 32px; }
+.legend .hint kbd { font-size: 22px; }
+
+/* ======================= PHONE ======================= */
+.phone { width: 390px; height: 844px; position: relative; overflow: hidden; border-radius: 48px; background: var(--night); box-shadow: 0 0 0 10px #17123a, 0 0 0 11px rgba(255,244,240,.25), 0 30px 60px rgba(0,0,0,.6); display: flex; flex-direction: column; }
+.phone .sb { position: absolute; top: 0; left: 0; right: 0; height: 54px; z-index: 9; display: flex; justify-content: space-between; align-items: center; padding: 6px 34px 0 40px; font: 600 16px var(--font-body); }
+.phone .sb::after { content: ""; position: absolute; left: 50%; top: 11px; width: 118px; height: 34px; margin-left: -59px; border-radius: 20px; background: #000; }
+.phone .home { position: absolute; bottom: 8px; left: 50%; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: rgba(255,244,240,.6); z-index: 9; }
+.p-body { position: relative; z-index: 3; flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 60px 16px 30px; min-height: 0; }
+.p-top { display: flex; align-items: center; justify-content: space-between; height: 40px; }
+.p-top .st { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; }
+.p-top .st.green { color: var(--st-green); } .p-top .st.yellow { color: var(--st-yellow); } .p-top .st.red { color: var(--st-red); }
+.p-top .st .dot { width: 14px; height: 14px; }
+.p-top .room { font-size: 14px; color: var(--text-soft); letter-spacing: .08em; }
+.ph { display: block; width: 100%; height: auto; border-radius: 10px; }
+.now { position: relative; border-radius: 14px; box-shadow: 0 0 0 2px var(--pink), var(--glow-pink); }
+.now .tag { position: absolute; left: 10px; top: 10px; padding: 3px 10px; border-radius: 999px; background: var(--night); color: var(--text); font: 700 12px var(--font-body); letter-spacing: .16em; }
+.now .veil { position: absolute; inset: 0; border-radius: 12px; background: #000; display: grid; place-items: center; text-align: center; color: var(--pink); font-family: var(--font-display); font-size: 30px; letter-spacing: .06em; text-transform: uppercase; box-shadow: inset 0 0 0 1px rgba(255,46,136,.5); }
+.now .veil small { display: block; font: 500 14px var(--font-body); letter-spacing: 0; text-transform: none; color: var(--text-soft); margin-top: 4px; }
+.info { display: flex; gap: 14px; align-items: center; }
+.next { position: relative; width: 140px; flex: none; }
+.next .ph { opacity: .92; box-shadow: 0 0 0 1px var(--line); }
+.next .tag { position: absolute; left: 6px; top: 6px; padding: 1px 8px; border-radius: 999px; background: var(--night); font: 700 11px var(--font-body); letter-spacing: .16em; color: var(--teal); }
+.pg { flex: 1; text-align: right; }
+.pg .n { font-family: var(--font-display); font-size: 56px; line-height: 1; letter-spacing: .02em; }
+.pg .n span { color: var(--text-dim); font-size: 30px; }
+.pg .l { font-size: 14px; color: var(--text-soft); }
+.chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; margin-top: 6px; border-radius: 999px; border: 1px solid var(--teal); color: var(--teal); font-size: 15px; font-weight: 700; background: transparent; }
+.chip svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; }
+.timer { display: flex; align-items: center; justify-content: space-between; padding: 8px 8px 8px 20px; min-height: 72px; border-radius: var(--r-md); background: var(--night-2); border: 1px solid var(--line); }
+.timer .t { font-family: var(--font-display); font-size: 44px; letter-spacing: .04em; font-variant-numeric: tabular-nums; line-height: 1; }
+.timer .t small { display: block; font: 700 11px var(--font-body); letter-spacing: .2em; color: var(--text-soft); margin-bottom: 4px; }
+.round { width: var(--tap); height: var(--tap); border-radius: 50%; border: 2px solid var(--text-soft); background: transparent; color: var(--text); display: grid; place-items: center; }
+.round svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.timer.confirm { border-color: var(--pink); box-shadow: 0 0 0 1px var(--pink), var(--glow-pink); padding-left: 16px; gap: 10px; }
+.timer.confirm .q { font-size: 16px; font-weight: 600; line-height: 1.25; flex: 1; }
+.timer.confirm .btn { min-height: var(--tap); padding: 0 20px; font-size: 20px; }
+.toggle { display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding: 0 20px; border-radius: var(--r-md); background: var(--night-2); border: 1px solid var(--line); color: var(--text); font-size: 17px; font-weight: 700; width: 100%; text-align: left; }
+.toggle small { display: block; font-weight: 500; font-size: 13px; color: var(--text-soft); margin-top: 2px; }
+.sw-track { width: 56px; height: 32px; border-radius: 16px; background: #3a3366; position: relative; flex: none; }
+.sw-track::after { content: ""; position: absolute; left: 4px; top: 4px; width: 24px; height: 24px; border-radius: 50%; background: var(--text-soft); }
+.toggle.on { border-color: var(--pink); background: #2a0a3a; box-shadow: 0 0 0 1px var(--pink), var(--glow-pink); }
+.toggle.on small { color: #ffb3d1; }
+.toggle.on .sw-track { background: var(--pink); }
+.toggle.on .sw-track::after { left: 28px; background: #fff; }
+.nav { margin-top: auto; display: flex; gap: 12px; }
+.nav .btn { min-height: 104px; border-radius: 28px; font-size: 40px; }
+.nav .prev { width: 118px; padding: 0; }
+.nav .nextb { flex: 1; }
+.nav .btn svg { width: 36px; height: 36px; stroke-width: 3.2; }
+.discon { align-self: center; min-height: 48px; padding: 0 20px; background: none; border: 0; color: var(--text-soft); font-size: 15px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+
+/* thumbs */
+.th-head { display: flex; justify-content: space-between; align-items: center; min-height: 48px; }
+.th-head .display { font-size: 34px; }
+.th-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 10px; overflow: hidden; flex: 1; -webkit-mask-image: linear-gradient(#000 88%, transparent); mask-image: linear-gradient(#000 88%, transparent); }
+.th { position: relative; text-align: center; font-size: 13px; color: var(--text-soft); }
+.th .ph { border-radius: 6px; box-shadow: 0 0 0 1px var(--line); }
+.th span { display: block; margin-top: 4px; }
+.th.cur .ph { box-shadow: 0 0 0 3px var(--teal), var(--glow-teal); }
+.th.cur span { color: var(--teal); font-weight: 700; }
+.th.cur::after { content: "NOW"; position: absolute; left: 5px; top: 5px; padding: 1px 7px; border-radius: 999px; background: var(--teal); color: var(--ink); font: 800 10px var(--font-body); letter-spacing: .12em; }
+
+/* join */
+.join-art { position: relative; height: 250px; margin: -60px -16px 0; flex: none; }
+.phone .join-art .art { --horizon: 26%; --sun-w: 190px; --palm-h: 190px; }
+.join-art .art .dim { background: linear-gradient(rgba(10,7,32,.85), transparent 45%); }
+.join-art::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 60px; background: linear-gradient(transparent, var(--night)); z-index: 7; }
+.join h2 { font-size: 52px; margin-top: -6px; }
+.join p { margin: 0; color: var(--text-soft); font-size: 16px; line-height: 1.45; }
+.digits { display: flex; gap: 8px; align-items: center; justify-content: center; margin: 8px 0; }
+.digits .d { width: 48px; height: 66px; border-radius: 12px; background: var(--night-2); border: 2px solid rgba(255,244,240,.28); display: grid; place-items: center; font-family: var(--font-display); font-size: 38px; }
+.digits .d.cur { border-color: var(--teal); box-shadow: var(--glow-teal); }
+.digits .d.cur::after { content: ""; width: 3px; height: 34px; background: var(--teal); animation: pulse 1s steps(2) infinite; }
+.digits .gap { width: 12px; height: 3px; background: var(--text-dim); border-radius: 2px; }
+.digits.bad .d { border-color: var(--st-red); box-shadow: 0 0 14px rgba(255,59,78,.5); }
+.refuse { display: flex; gap: 14px; padding: 18px 18px; border-radius: var(--r-md); background: #2a0a1c; border: 1px solid var(--st-red); box-shadow: 0 0 22px rgba(255,59,78,.3); }
+.refuse .dot { margin-top: 5px; }
+.refuse b { display: block; font-size: 19px; margin-bottom: 4px; }
+.refuse span { color: #ffc2c8; font-size: 15px; line-height: 1.45; }
+
+/* moments */
+.phone .art { --horizon: 26%; --sun-w: 290px; --palm-h: 380px; z-index: 1; }
+.phone .palm.l { left: -70px; } .phone .palm.r { right: -110px; }
+.moment-p { position: relative; z-index: 5; flex: 1; display: flex; flex-direction: column; align-items: center; padding: 120px 24px 40px; text-align: center; }
+.moment-p .display { font-size: 112px; }
+.moment-p .sub { margin: 18px 0 0; padding: 8px 14px; border-radius: 14px; background: rgba(10,7,32,.6); font-size: 19px; line-height: 1.4; color: var(--text); text-shadow: 0 2px 10px #000; }
+.moment-p .pill { margin-top: 20px; display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px; border-radius: 999px; background: rgba(10,7,32,.75); border: 1px solid rgba(255,244,240,.25); font-weight: 700; }
+.moment-p .bottom { margin-top: auto; width: 100%; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 6; }
+.moment-p .btn { min-height: 64px; width: 100%; }
+.moment-p .stat { padding: 8px 22px; border-radius: 16px; background: rgba(10,7,32,.78); font-family: var(--font-display); font-size: 40px; letter-spacing: .04em; }
+.moment-p .stat small { display: block; font: 700 11px var(--font-body); letter-spacing: .2em; color: var(--text-soft); }
+
+/* icon */
+.icons { display: flex; gap: 48px; align-items: flex-end; flex-wrap: wrap; }
+.icons img { display: block; }
+.icons .r180 { border-radius: 40px; } .icons .r60 { border-radius: 13.5px; } .icons .r120 { border-radius: 27px; }
+.icons figure { text-align: center; }
+.home-strip { padding: 22px 26px; border-radius: 28px; background: linear-gradient(160deg, #1b0b4d, #c2287f 70%, #ff8a3d); display: flex; gap: 22px; align-items: flex-start; }
+.home-strip div { width: 60px; text-align: center; font-size: 11px; color: #fff; }
+.home-strip i { display: block; width: 60px; height: 60px; border-radius: 13.5px; background: rgba(255,255,255,.22); margin-bottom: 5px; }
+.home-strip img { border-radius: 13.5px; margin-bottom: 5px; }
+</style>
+</head>
+<body>
+
+<!-- Shared art, defined once and reused with <use> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd15c"/><stop offset=".5" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff2e88"/></linearGradient>
+    <mask id="m-slats"><rect width="400" height="400" fill="#fff"/><rect y="238" width="400" height="6" fill="#000"/><rect y="270" width="400" height="10" fill="#000"/><rect y="306" width="400" height="14" fill="#000"/><rect y="346" width="400" height="20" fill="#000"/></mask>
+    <symbol id="sunart" viewBox="0 0 400 400"><g mask="url(#m-slats)"><circle cx="200" cy="200" r="200" fill="url(#g-sun)"/></g></symbol>
+    <!-- palm silhouette: curved trunk + 7 fronds -->
+    <symbol id="palm" viewBox="0 0 245 400">
+      <path d="M104 400 C 112 300 108 200 118 120 L 128 120 C 122 205 128 300 132 400 Z"/>
+      <path d="M122 118 C 90 70 40 70 5 110 C 45 92 90 98 122 118Z"/>
+      <path d="M122 118 C 95 95 55 120 25 180 C 60 138 95 125 122 118Z"/>
+      <path d="M122 118 C 100 60 70 30 30 28 C 65 45 95 70 122 118Z"/>
+      <path d="M122 118 C 154 70 204 70 239 110 C 199 92 154 98 122 118Z"/>
+      <path d="M122 118 C 149 95 189 120 219 180 C 184 138 149 125 122 118Z"/>
+      <path d="M122 118 C 144 60 174 30 214 28 C 179 45 149 70 122 118Z"/>
+      <path d="M122 118 C 125 70 140 35 170 12 C 150 50 138 80 122 118Z"/>
+      <circle cx="124" cy="124" r="9"/>
+    </symbol>
+    <symbol id="arrR" viewBox="0 0 24 24"><polyline points="9 4 17 12 9 20"/></symbol>
+    <symbol id="arrL" viewBox="0 0 24 24"><polyline points="15 4 7 12 15 20"/></symbol>
+    <symbol id="reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2"/><polyline points="4 3 4 8 9 8"/></symbol>
+    <symbol id="grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+  </defs>
+</svg>
+
+<div class="page">
+<header>
+  <h1>Sunset Ticker <span style="color:var(--teal)">/ theme mockups</span></h1>
+  <p>Original neon dusk: sunset gradient, teal accent, night navy, tilted Anton display type, grain and scanlines. Static mockup for approval. Laptop screens are 1440x900 shown at 58%. Phones are real size (390x844). All art is CSS and inline SVG.</p>
+  <div class="sw">
+    <span style="background:#0a0720">--night<br>#0a0720</span>
+    <span style="background:#150c35">--night-2<br>#150c35</span>
+    <span style="background:#3b1167">--dusk<br>#3b1167</span>
+    <span style="background:#ff2e88">--pink<br>#ff2e88</span>
+    <span style="background:#ff8a3d">--orange<br>#ff8a3d</span>
+    <span style="background:#ffd15c;color:#1a0830;text-shadow:none">--sun<br>#ffd15c</span>
+    <span style="background:#19e3d0;color:#1a0830;text-shadow:none">--teal<br>#19e3d0</span>
+    <span style="background:#fff4f0;color:#1a0830;text-shadow:none">--text<br>#fff4f0</span>
+  </div>
+</header>
+
+<!-- ============ 1. LAPTOP START ============ -->
+<h2 class="sec">1. Laptop start screen</h2>
+<p class="note">Left: logo, Choose PDF, privacy line, keys. Right: sunset art with the pairing card. Four states in order of the flow.</p>
+<div class="row">
+
+<figure><div class="lap-wrap"><div class="lap">
+  <main class="start" id="start-a">
+    <section class="left">
+      <div class="logo"><img src="icon.svg" alt=""><h1 class="display"><span class="tilt grad-text">Sunset</span><br><span class="tilt outline-text">Ticker</span></h1></div>
+      <p class="lead">Pick the PDF to present. <b>It stays on this laptop.</b> Nothing is uploaded.</p>
+      <div class="actions"><label class="btn">Choose PDF</label></div>
+      <p class="msg" role="status">&nbsp;</p>
+      <dl class="keys">
+        <dt><kbd>&rarr;</kbd><kbd>&larr;</kbd><kbd>PgUp</kbd><kbd>PgDn</kbd><kbd>Space</kbd></dt><dd>Change slide</dd>
+        <dt><kbd>B</kbd></dt><dd>Black screen</dd>
+        <dt><kbd>F</kbd></dt><dd>Full screen</dd>
+      </dl>
+    </section>
+    <section class="right"><div class="art"><i class="stars"></i><svg class="sun"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg></div>
+      <div class="pair">
+        <div class="qr empty">Pick a PDF and your QR code appears here</div>
+        <div class="label">Room code</div>
+        <div class="code empty">--- ---</div>
+      </div>
+    </section>
+  </main>
+</div></div><figcaption><b>1a. Start.</b> No PDF yet. Pairing card is a quiet placeholder.</figcaption></figure>
+
+<figure><div class="lap-wrap"><div class="lap">
+  <main class="start" id="start-b">
+    <section class="left">
+      <div class="logo"><img src="icon.svg" alt=""><h1 class="display"><span class="tilt grad-text">Sunset</span><br><span class="tilt outline-text">Ticker</span></h1></div>
+      <div class="file-chip"><span class="ok">&#10003;</span><span>Sunday-service.pdf<br><small>48 pages ready</small></span></div>
+      <p class="lead">Open the Sunset Ticker app on your iPhone, then scan the code or type it. <b>The PDF stays on this laptop.</b></p>
+      <div class="actions"><label class="btn ghost">Choose another PDF</label></div>
+      <dl class="keys">
+        <dt><kbd>&rarr;</kbd><kbd>&larr;</kbd><kbd>PgUp</kbd><kbd>PgDn</kbd><kbd>Space</kbd></dt><dd>Change slide</dd>
+        <dt><kbd>B</kbd></dt><dd>Black screen</dd>
+        <dt><kbd>F</kbd></dt><dd>Full screen</dd>
+      </dl>
+    </section>
+    <section class="right"><div class="art"><i class="stars"></i><svg class="sun"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg></div>
+      <div class="pair">
+        <div class="qr"><svg viewBox="0 0 25 25" shape-rendering="crispEdges" role="img" aria-label="QR code placeholder"><g fill="#0a0720"><rect x="8" y="0" width="1" height="1"/><rect x="9" y="0" width="1" height="1"/><rect x="11" y="0" width="1" height="1"/><rect x="13" y="0" width="1" height="1"/><rect x="14" y="0" width="1" height="1"/><rect x="16" y="0" width="1" height="1"/><rect x="8" y="1" width="1" height="1"/><rect x="9" y="1" width="1" height="1"/><rect x="10" y="1" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/><rect x="13" y="1" width="1" height="1"/><rect x="14" y="1" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/><rect x="13" y="2" width="1" height="1"/><rect x="14" y="2" width="1" height="1"/><rect x="15" y="2" width="1" height="1"/><rect x="16" y="2" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="12" y="3" width="1" height="1"/><rect x="14" y="3" width="1" height="1"/><rect x="15" y="3" width="1" height="1"/><rect x="16" y="3" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="12" y="4" width="1" height="1"/><rect x="13" y="4" width="1" height="1"/><rect x="16" y="4" width="1" height="1"/><rect x="12" y="5" width="1" height="1"/><rect x="14" y="5" width="1" height="1"/><rect x="15" y="5" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="15" y="6" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="13" y="7" width="1" height="1"/><rect x="15" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="10" y="8" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/><rect x="13" y="8" width="1" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="16" y="8" width="1" height="1"/><rect x="17" y="8" width="1" height="1"/><rect x="22" y="8" width="1" height="1"/><rect x="23" y="8" width="1" height="1"/><rect x="24" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/><rect x="10" y="9" width="1" height="1"/><rect x="11" y="9" width="1" height="1"/><rect x="18" y="9" width="1" height="1"/><rect x="23" y="9" width="1" height="1"/><rect x="24" y="9" width="1" height="1"/><rect x="0" y="10" width="1" height="1"/><rect x="2" y="10" width="1" height="1"/><rect x="3" y="10" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="5" y="10" width="1" height="1"/><rect x="6" y="10" width="1" height="1"/><rect x="7" y="10" width="1" height="1"/><rect x="8" y="10" width="1" height="1"/><rect x="9" y="10" width="1" height="1"/><rect x="10" y="10" width="1" height="1"/><rect x="11" y="10" width="1" height="1"/><rect x="12" y="10" width="1" height="1"/><rect x="15" y="10" width="1" height="1"/><rect x="16" y="10" width="1" height="1"/><rect x="17" y="10" width="1" height="1"/><rect x="18" y="10" width="1" height="1"/><rect x="19" y="10" width="1" height="1"/><rect x="22" y="10" width="1" height="1"/><rect x="24" y="10" width="1" height="1"/><rect x="0" y="11" width="1" height="1"/><rect x="1" y="11" width="1" height="1"/><rect x="2" y="11" width="1" height="1"/><rect x="4" y="11" width="1" height="1"/><rect x="5" y="11" width="1" height="1"/><rect x="8" y="11" width="1" height="1"/><rect x="10" y="11" width="1" height="1"/><rect x="15" y="11" width="1" height="1"/><rect x="16" y="11" width="1" height="1"/><rect x="17" y="11" width="1" height="1"/><rect x="21" y="11" width="1" height="1"/><rect x="22" y="11" width="1" height="1"/><rect x="4" y="12" width="1" height="1"/><rect x="6" y="12" width="1" height="1"/><rect x="7" y="12" width="1" height="1"/><rect x="8" y="12" width="1" height="1"/><rect x="9" y="12" width="1" height="1"/><rect x="10" y="12" width="1" height="1"/><rect x="13" y="12" width="1" height="1"/><rect x="17" y="12" width="1" height="1"/><rect x="18" y="12" width="1" height="1"/><rect x="19" y="12" width="1" height="1"/><rect x="20" y="12" width="1" height="1"/><rect x="21" y="12" width="1" height="1"/><rect x="0" y="13" width="1" height="1"/><rect x="3" y="13" width="1" height="1"/><rect x="8" y="13" width="1" height="1"/><rect x="9" y="13" width="1" height="1"/><rect x="11" y="13" width="1" height="1"/><rect x="14" y="13" width="1" height="1"/><rect x="15" y="13" width="1" height="1"/><rect x="18" y="13" width="1" height="1"/><rect x="19" y="13" width="1" height="1"/><rect x="20" y="13" width="1" height="1"/><rect x="23" y="13" width="1" height="1"/><rect x="2" y="14" width="1" height="1"/><rect x="4" y="14" width="1" height="1"/><rect x="5" y="14" width="1" height="1"/><rect x="10" y="14" width="1" height="1"/><rect x="13" y="14" width="1" height="1"/><rect x="14" y="14" width="1" height="1"/><rect x="15" y="14" width="1" height="1"/><rect x="16" y="14" width="1" height="1"/><rect x="18" y="14" width="1" height="1"/><rect x="19" y="14" width="1" height="1"/><rect x="20" y="14" width="1" height="1"/><rect x="22" y="14" width="1" height="1"/><rect x="23" y="14" width="1" height="1"/><rect x="1" y="15" width="1" height="1"/><rect x="6" y="15" width="1" height="1"/><rect x="7" y="15" width="1" height="1"/><rect x="8" y="15" width="1" height="1"/><rect x="9" y="15" width="1" height="1"/><rect x="11" y="15" width="1" height="1"/><rect x="12" y="15" width="1" height="1"/><rect x="15" y="15" width="1" height="1"/><rect x="19" y="15" width="1" height="1"/><rect x="21" y="15" width="1" height="1"/><rect x="22" y="15" width="1" height="1"/><rect x="3" y="16" width="1" height="1"/><rect x="8" y="16" width="1" height="1"/><rect x="10" y="16" width="1" height="1"/><rect x="15" y="16" width="1" height="1"/><rect x="19" y="16" width="1" height="1"/><rect x="20" y="16" width="1" height="1"/><rect x="21" y="16" width="1" height="1"/><rect x="22" y="16" width="1" height="1"/><rect x="23" y="16" width="1" height="1"/><rect x="24" y="16" width="1" height="1"/><rect x="11" y="17" width="1" height="1"/><rect x="14" y="17" width="1" height="1"/><rect x="17" y="17" width="1" height="1"/><rect x="19" y="17" width="1" height="1"/><rect x="23" y="17" width="1" height="1"/><rect x="24" y="17" width="1" height="1"/><rect x="9" y="18" width="1" height="1"/><rect x="10" y="18" width="1" height="1"/><rect x="11" y="18" width="1" height="1"/><rect x="13" y="18" width="1" height="1"/><rect x="15" y="18" width="1" height="1"/><rect x="16" y="18" width="1" height="1"/><rect x="17" y="18" width="1" height="1"/><rect x="20" y="18" width="1" height="1"/><rect x="24" y="18" width="1" height="1"/><rect x="8" y="19" width="1" height="1"/><rect x="9" y="19" width="1" height="1"/><rect x="11" y="19" width="1" height="1"/><rect x="12" y="19" width="1" height="1"/><rect x="13" y="19" width="1" height="1"/><rect x="16" y="19" width="1" height="1"/><rect x="17" y="19" width="1" height="1"/><rect x="21" y="19" width="1" height="1"/><rect x="22" y="19" width="1" height="1"/><rect x="24" y="19" width="1" height="1"/><rect x="8" y="20" width="1" height="1"/><rect x="12" y="20" width="1" height="1"/><rect x="14" y="20" width="1" height="1"/><rect x="16" y="20" width="1" height="1"/><rect x="17" y="20" width="1" height="1"/><rect x="20" y="20" width="1" height="1"/><rect x="21" y="20" width="1" height="1"/><rect x="23" y="20" width="1" height="1"/><rect x="24" y="20" width="1" height="1"/><rect x="8" y="21" width="1" height="1"/><rect x="9" y="21" width="1" height="1"/><rect x="10" y="21" width="1" height="1"/><rect x="11" y="21" width="1" height="1"/><rect x="12" y="21" width="1" height="1"/><rect x="14" y="21" width="1" height="1"/><rect x="16" y="21" width="1" height="1"/><rect x="17" y="21" width="1" height="1"/><rect x="18" y="21" width="1" height="1"/><rect x="19" y="21" width="1" height="1"/><rect x="20" y="21" width="1" height="1"/><rect x="23" y="21" width="1" height="1"/><rect x="24" y="21" width="1" height="1"/><rect x="9" y="22" width="1" height="1"/><rect x="11" y="22" width="1" height="1"/><rect x="14" y="22" width="1" height="1"/><rect x="18" y="22" width="1" height="1"/><rect x="22" y="22" width="1" height="1"/><rect x="23" y="22" width="1" height="1"/><rect x="24" y="22" width="1" height="1"/><rect x="8" y="23" width="1" height="1"/><rect x="9" y="23" width="1" height="1"/><rect x="11" y="23" width="1" height="1"/><rect x="12" y="23" width="1" height="1"/><rect x="13" y="23" width="1" height="1"/><rect x="17" y="23" width="1" height="1"/><rect x="18" y="23" width="1" height="1"/><rect x="19" y="23" width="1" height="1"/><rect x="20" y="23" width="1" height="1"/><rect x="21" y="23" width="1" height="1"/><rect x="22" y="23" width="1" height="1"/><rect x="23" y="23" width="1" height="1"/><rect x="10" y="24" width="1" height="1"/><rect x="12" y="24" width="1" height="1"/><rect x="13" y="24" width="1" height="1"/><rect x="14" y="24" width="1" height="1"/><rect x="15" y="24" width="1" height="1"/><rect x="16" y="24" width="1" height="1"/><rect x="18" y="24" width="1" height="1"/><rect x="20" y="24" width="1" height="1"/><rect x="21" y="24" width="1" height="1"/><rect x="22" y="24" width="1" height="1"/><rect x="23" y="24" width="1" height="1"/><rect x="24" y="24" width="1" height="1"/></g><rect x="0" y="0" width="7" height="7" fill="#0a0720"/><rect x="1" y="1" width="5" height="5" fill="#fff"/><rect x="2" y="2" width="3" height="3" fill="#0a0720"/><rect x="18" y="0" width="7" height="7" fill="#0a0720"/><rect x="19" y="1" width="5" height="5" fill="#fff"/><rect x="20" y="2" width="3" height="3" fill="#0a0720"/><rect x="0" y="18" width="7" height="7" fill="#0a0720"/><rect x="1" y="19" width="5" height="5" fill="#fff"/><rect x="2" y="20" width="3" height="3" fill="#0a0720"/></svg></div>
+        <div class="label">Room code</div>
+        <div class="code">482 913</div>
+        <p class="how">Scan with the iPhone Camera, or type the code in the app.</p>
+        <div class="status-line"><span class="dot grey pulse"></span>Waiting for your phone</div>
+      </div>
+    </section>
+  </main>
+</div></div><figcaption><b>1b. PDF opened, waiting for phone.</b> Grey dot pulses slowly (still, with reduced motion).</figcaption></figure>
+
+<figure><div class="lap-wrap"><div class="lap">
+  <div class="art" style="--horizon:30%;--sun-w:640px;--palm-h:700px"><i class="stars"></i><svg class="sun"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg></div>
+  <div class="moment"><div class="card">
+    <div class="label">Phone paired</div>
+    <h2 class="display" style="margin-top:10px"><span class="tilt grad-text">Connected</span></h2>
+    <p class="dev"><span class="dot green"></span>iPhone &middot; iOS 18</p>
+    <div class="bar"><i></i></div>
+    <p class="sub">Starting your slides&hellip;</p>
+  </div></div>
+</div></div><figcaption><b>1c. Connected moment</b> (about 2 s, then the slides). Same art, centered card, progress bar fills over the 2 s.</figcaption></figure>
+
+<figure><div class="lap-wrap"><div class="lap">
+  <main class="start">
+    <section class="left">
+      <div class="logo"><img src="icon.svg" alt=""><h1 class="display"><span class="tilt grad-text">Sunset</span><br><span class="tilt outline-text">Ticker</span></h1></div>
+      <p class="lead">Pick the PDF to present. <b>It stays on this laptop.</b></p>
+      <div class="actions"><label class="btn">Choose PDF</label></div>
+      <p class="msg" role="status" style="color:#ff9aa5"><b>That file isn't a PDF.</b> Pick a file that ends in .pdf.</p>
+      <dl class="keys"><dt><kbd>B</kbd></dt><dd>Black screen</dd><dt><kbd>F</kbd></dt><dd>Full screen</dd></dl>
+    </section>
+    <section class="right"><div class="art"><i class="stars"></i><svg class="sun"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg></div>
+      <div class="pair"><div class="qr empty">Pick a PDF and your QR code appears here</div><div class="label">Room code</div><div class="code empty">--- ---</div></div>
+    </section>
+  </main>
+</div></div><figcaption><b>1d. Message line.</b> Errors use the existing #msg slot: plain words, what to do next.</figcaption></figure>
+</div>
+
+<!-- ============ 2. PRESENTING OVERLAYS ============ -->
+<h2 class="sec">2. Laptop presenting: overlay elements only</h2>
+<p class="note">Slides are untouched; the gray rectangle is a placeholder. The pill and dot are the only theme on the projector, kept small, dark and quiet. The black screen is pure #000 with only the dot.</p>
+<div class="row">
+<figure><div class="lap-wrap"><div class="lap"><div class="stage">
+  <div class="slide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="#9aa0b0"/><text x="80" y="50" font-size="5" text-anchor="middle" fill="#3d4254" font-family="sans-serif">Slide placeholder (untouched)</text></svg></div>
+  <p class="hint">Click or press <kbd>F</kbd> for full screen</p>
+  <span class="dot green"></span>
+</div></div></div><figcaption><b>2a. Slide, not full screen.</b> Hint pill bottom center, dot bottom right.</figcaption></figure>
+
+<figure><div class="lap-wrap"><div class="lap"><div class="stage"><div class="black"></div><span class="dot green" style="z-index:2"></span></div></div></div>
+<figcaption><b>2b. Black screen.</b> Pure #000; only the 10px dot remains (as in the current build).</figcaption></figure>
+
+<div class="legend">
+  <div><span class="dot grey"></span>Grey: waiting, no phone</div>
+  <div><span class="dot green"></span>Green: connected</div>
+  <div><span class="dot yellow"></span>Yellow: weak, reconnecting</div>
+  <div><span class="dot red"></span>Red: disconnected, keys still work</div>
+  <div class="zoom"><p class="hint">Click or press <kbd>F</kbd> for full screen</p><span style="color:var(--text-soft);font-size:14px">Hint pill at 2x. Real size: 14px text.</span></div>
+</div>
+</div>
+
+<!-- ============ 3 + 5. PHONE REMOTE ============ -->
+<h2 class="sec">3 and 5. iPhone remote</h2>
+<p class="note">Everything the thumb needs sits in the lower half: black screen, Prev (118px wide) and Next (104px tall). No white surfaces anywhere, so it doesn't light up a dark church.</p>
+<div class="row">
+
+<figure><div class="phone">
+  <div class="sb"><span>9:41</span><span>5G</span></div><div class="home"></div>
+  <div class="p-body">
+    <div class="p-top"><span class="st green"><span class="dot green"></span>Connected</span><span class="room">ROOM 482 913</span></div>
+    <div class="now"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#7b8092"/><text x="80" y="52" font-size="12" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">Slide 12</text></svg><span class="tag">NOW</span></div>
+    <div class="info">
+      <div class="next"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="12" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">Slide 13</text></svg><span class="tag">NEXT</span></div>
+      <div class="pg"><div class="l">Page</div><div class="n">12 <span>/ 48</span></div><button class="chip"><svg><use href="#grid"/></svg>All pages</button></div>
+    </div>
+    <div class="timer"><div class="t"><small>TIMER</small>12:34</div><button class="round" aria-label="Reset timer"><svg><use href="#reset"/></svg></button></div>
+    <button class="toggle"><span>Black screen<small>Projector shows slides</small></span><i class="sw-track"></i></button>
+    <div class="nav"><button class="btn ghost prev" aria-label="Previous page"><svg><use href="#arrL"/></svg></button><button class="btn nextb">Next<svg><use href="#arrR"/></svg></button></div>
+    <button class="discon">Disconnect</button>
+  </div>
+</div><figcaption><b>3a. Main view.</b> Timer running, black screen off.</figcaption></figure>
+
+<figure><div class="phone">
+  <div class="sb"><span>9:41</span><span>5G</span></div><div class="home"></div>
+  <div class="p-body">
+    <div class="p-top"><span class="st green"><span class="dot green"></span>Connected</span><span class="room">ROOM 482 913</span></div>
+    <div class="now"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#7b8092"/><text x="80" y="52" font-size="12" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">Slide 12</text></svg><span class="tag">NOW</span></div>
+    <div class="info">
+      <div class="next"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="12" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">Slide 13</text></svg><span class="tag">NEXT</span></div>
+      <div class="pg"><div class="l">Page</div><div class="n">12 <span>/ 48</span></div><button class="chip"><svg><use href="#grid"/></svg>All pages</button></div>
+    </div>
+    <div class="timer confirm"><div class="q">Reset timer to 0:00?</div><button class="btn quiet" style="min-height:var(--tap)">Keep</button><button class="btn">Reset</button></div>
+    <button class="toggle"><span>Black screen<small>Projector shows slides</small></span><i class="sw-track"></i></button>
+    <div class="nav"><button class="btn ghost prev" aria-label="Previous page"><svg><use href="#arrL"/></svg></button><button class="btn nextb">Next<svg><use href="#arrR"/></svg></button></div>
+    <button class="discon">Disconnect</button>
+  </div>
+</div><figcaption><b>3b. Reset confirm.</b> The timer card swaps in place; "Keep" is the safe, left choice. It reverts after a few seconds.</figcaption></figure>
+
+<figure><div class="phone">
+  <div class="sb"><span>9:41</span><span>5G</span></div><div class="home"></div>
+  <div class="p-body">
+    <div class="p-top"><span class="st green"><span class="dot green"></span>Connected</span><span class="room">ROOM 482 913</span></div>
+    <div class="now"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#7b8092"/></svg><div class="veil"><div>Projector is black<small>Slides keep changing underneath</small></div></div><span class="tag">NOW</span></div>
+    <div class="info">
+      <div class="next"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="12" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">Slide 13</text></svg><span class="tag">NEXT</span></div>
+      <div class="pg"><div class="l">Page</div><div class="n">12 <span>/ 48</span></div><button class="chip"><svg><use href="#grid"/></svg>All pages</button></div>
+    </div>
+    <div class="timer"><div class="t"><small>TIMER</small>12:34</div><button class="round" aria-label="Reset timer"><svg><use href="#reset"/></svg></button></div>
+    <button class="toggle on"><span>Black screen is ON<small>Tap to show slides again</small></span><i class="sw-track"></i></button>
+    <div class="nav"><button class="btn ghost prev" aria-label="Previous page"><svg><use href="#arrL"/></svg></button><button class="btn nextb">Next<svg><use href="#arrR"/></svg></button></div>
+    <button class="discon">Disconnect</button>
+  </div>
+</div><figcaption><b>3c. Black screen on.</b> Toggle lights up pink and the page preview goes black, so the state is unmistakable.</figcaption></figure>
+
+<figure><div class="phone">
+  <div class="sb"><span>9:41</span><span>5G</span></div><div class="home"></div>
+  <div class="p-body">
+    <div class="p-top"><span class="st green"><span class="dot green"></span>Connected</span><span class="room">ROOM 482 913</span></div>
+    <div class="th-head"><h2 class="display"><span class="tilt grad-text">Jump to page</span></h2><button class="btn quiet">Close</button></div>
+    <div class="th-grid"><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">1</text></svg><span>1</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">2</text></svg><span>2</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">3</text></svg><span>3</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">4</text></svg><span>4</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">5</text></svg><span>5</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">6</text></svg><span>6</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">7</text></svg><span>7</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">8</text></svg><span>8</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">9</text></svg><span>9</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">10</text></svg><span>10</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">11</text></svg><span>11</span></div><div class="th cur"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#7b8092"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">12</text></svg><span>12</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">13</text></svg><span>13</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">14</text></svg><span>14</span></div><div class="th"><svg class="ph" viewBox="0 0 160 90"><rect width="160" height="90" rx="4" fill="#6b7080"/><text x="80" y="52" font-size="14" text-anchor="middle" fill="#2b2f40" font-family="sans-serif">15</text></svg><span>15</span></div></div>
+  </div>
+</div><figcaption><b>5. Thumbnail grid.</b> Current page: teal ring, glow and NOW tag (not color alone).</figcaption></figure>
+</div>
+
+<!-- ============ 4 + 6. JOIN + MOMENTS ============ -->
+<h2 class="sec">4 and 6. Join and moments</h2>
+<p class="note">Join uses the sunset only as a header band; the form stays plain and high contrast. Moments get the full art.</p>
+<div class="row">
+
+<figure><div class="phone join">
+  <div class="sb"><span>9:41</span><span>5G</span></div><div class="home"></div>
+  <div class="p-body" style="gap:14px">
+    <div class="join-art"><div class="art"><i class="stars"></i><svg class="sun"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg><i class="dim"></i></div></div>
+    <h2 class="display"><span class="tilt grad-text">Join the</span><br><span class="tilt outline-text">room</span></h2>
+    <p>Type the 6-digit code shown on the laptop screen.</p>
+    <div class="digits"><span class="d">4</span><span class="d">8</span><span class="d">2</span><i class="gap"></i><span class="d">9</span><span class="d cur"></span><span class="d"></span></div>
+    <button class="btn off" style="width:100%;min-height:64px">Join</button>
+    <p style="text-align:center;font-size:14px">Camera scan opens Safari, not this app, so the code is the way in.</p>
+  </div>
+</div><figcaption><b>4a. Join.</b> Join button stays inactive until all 6 digits are in.</figcaption></figure>
+
+<figure><div class="phone join">
+  <div class="sb"><span>9:41</span><span>5G</span></div><div class="home"></div>
+  <div class="p-body" style="gap:14px">
+    <div class="join-art"><div class="art"><i class="stars"></i><svg class="sun"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg><i class="dim"></i></div></div>
+    <h2 class="display"><span class="tilt grad-text">Join the</span><br><span class="tilt outline-text">room</span></h2>
+    <div class="digits bad"><span class="d">4</span><span class="d">8</span><span class="d">2</span><i class="gap"></i><span class="d">9</span><span class="d">1</span><span class="d">3</span></div>
+    <div class="refuse" role="alert"><span class="dot red"></span><div><b>In use by iPhone &middot; iOS 17</b><span>This room already has a phone. Ask the presenter to release it on the laptop, then try again.</span></div></div>
+    <button class="btn" style="width:100%;min-height:64px">Try again</button>
+    <button class="btn quiet" style="width:100%">Use a different code</button>
+  </div>
+</div><figcaption><b>4b. Refused.</b> Says what happened and how to fix it. Red outline plus text, not color alone.</figcaption></figure>
+
+<figure><div class="phone">
+  <div class="sb"><span>9:41</span><span>5G</span></div><div class="home"></div>
+  <div class="art" style="--horizon:26%;--sun-w:290px"><i class="stars"></i><svg class="sun"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg></div>
+  <div class="moment-p">
+    <h2 class="display"><span class="tilt grad-text">Show</span><br><span class="tilt grad-text">time</span></h2>
+    <p class="sub">You're paired. The slides are live on the laptop.</p>
+    <span class="pill"><span class="dot green"></span>MacBook Air connected</span>
+    <div class="bottom"><button class="btn">Let's go</button></div>
+  </div>
+</div><figcaption><b>6a. Showtime.</b> Shown ~2 s when paired, then the main view. Same moment as the laptop's 1c.</figcaption></figure>
+
+<figure><div class="phone">
+  <div class="sb"><span>9:41</span><span>5G</span></div><div class="home"></div>
+  <div class="art" style="--horizon:34%;--sun-w:290px"><i class="stars"></i><svg class="sun" style="bottom:calc(var(--horizon) - var(--sun-w)*.55)"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg></div>
+  <div class="moment-p">
+    <h2 class="display"><span class="tilt grad-text">That's</span><br><span class="tilt grad-text">a wrap</span></h2>
+    <p class="sub">Last slide: page 48 of 48.</p>
+    <div class="stat" style="margin-top:18px"><small>TOTAL TIME</small>24:18</div>
+    <div class="bottom"><button class="btn ghost" style="background:rgba(10,7,32,.7)"><svg><use href="#arrL"/></svg>Back one page</button><button class="btn quiet" style="background:rgba(10,7,32,.7);color:var(--text)">Disconnect</button></div>
+  </div>
+</div><figcaption><b>6b. That's a wrap.</b> Sun has set further. Phone only; Prev still works so a mis-tap isn't a dead end.</figcaption></figure>
+</div>
+
+<!-- ============ 7. ICON ============ -->
+<h2 class="sec">7. App icon</h2>
+<p class="note">A sun with slats setting behind a single slide. icon.svg is a full-bleed square (iOS rounds it). Rounded here only for preview.</p>
+<div class="icons">
+  <figure><img src="icon.svg" width="512" height="512" alt="Sunset Ticker icon" style="border-radius:112px"><figcaption>512 (master)</figcaption></figure>
+  <figure><img class="r180" src="icon.svg" width="180" height="180" alt=""><figcaption>180 (iPhone home screen)</figcaption></figure>
+  <figure><img class="r120" src="icon.svg" width="120" height="120" alt=""><figcaption>120</figcaption></figure>
+  <figure><img class="r60" src="icon.svg" width="60" height="60" alt=""><figcaption>60 (Spotlight, small)</figcaption></figure>
+  <figure><div class="home-strip"><div><i></i>Mail</div><div><img src="icon.svg" width="60" height="60" alt="">Ticker</div><div><i></i>Notes</div><div><i></i>Maps</div></div><figcaption>Among other icons</figcaption></figure>
+</div>
+</div>
+</body>
+</html>

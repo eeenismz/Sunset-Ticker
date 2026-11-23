@@ -4,25 +4,69 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sunset Ticker</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../shared/tokens.css?v=__V__">
   <link rel="stylesheet" href="view.css?v=__V__">
   <script type="module" src="view.js?v=__V__"></script>
 </head>
 <body>
+  <!-- Shared sun and palm art, defined once and reused with <use> (hidden, no layout) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="g-sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd15c"/><stop offset=".5" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff2e88"/></linearGradient>
+      <mask id="m-slats"><rect width="400" height="400" fill="#fff"/><rect y="238" width="400" height="6" fill="#000"/><rect y="270" width="400" height="10" fill="#000"/><rect y="306" width="400" height="14" fill="#000"/><rect y="346" width="400" height="20" fill="#000"/></mask>
+      <symbol id="sunart" viewBox="0 0 400 400"><g mask="url(#m-slats)"><circle cx="200" cy="200" r="200" fill="url(#g-sun)"/></g></symbol>
+      <!-- palm silhouette: curved trunk + 7 fronds -->
+      <symbol id="palm" viewBox="0 0 245 400">
+        <path d="M104 400 C 112 300 108 200 118 120 L 128 120 C 122 205 128 300 132 400 Z"/>
+        <path d="M122 118 C 90 70 40 70 5 110 C 45 92 90 98 122 118Z"/>
+        <path d="M122 118 C 95 95 55 120 25 180 C 60 138 95 125 122 118Z"/>
+        <path d="M122 118 C 100 60 70 30 30 28 C 65 45 95 70 122 118Z"/>
+        <path d="M122 118 C 154 70 204 70 239 110 C 199 92 154 98 122 118Z"/>
+        <path d="M122 118 C 149 95 189 120 219 180 C 184 138 149 125 122 118Z"/>
+        <path d="M122 118 C 144 60 174 30 214 28 C 179 45 149 70 122 118Z"/>
+        <path d="M122 118 C 125 70 140 35 170 12 C 150 50 138 80 122 118Z"/>
+      </symbol>
+    </defs>
+  </svg>
+
   <!-- Start screen: pick the PDF (it is read locally, never uploaded) -->
   <main id="start">
-    <h1>Sunset Ticker</h1>
-    <p>Pick the PDF to present. It stays on this laptop.</p>
-    <label class="btn">Choose PDF
-      <input id="file" type="file" accept="application/pdf,.pdf" hidden>
-    </label>
-    <p id="msg" role="status"></p>
-    <p class="keys">→ ← PageUp PageDown Space: change slide · B: black screen · F: full screen</p>
+    <section class="left">
+      <div class="logo">
+        <img src="../assets/icon.svg" alt="">
+        <h1 class="display"><span class="tilt grad-text">Sunset</span><br><span class="tilt outline-text">Ticker</span></h1>
+      </div>
+      <p class="lead">Pick the PDF to present. It stays on this laptop.</p>
+      <div class="actions">
+        <label class="btn">Choose PDF
+          <input id="file" type="file" accept="application/pdf,.pdf" hidden>
+        </label>
+      </div>
+      <p id="msg" class="msg" role="status"></p>
+      <dl class="keys">
+        <dt><kbd>&rarr;</kbd><kbd>&larr;</kbd><kbd>PgUp</kbd><kbd>PgDn</kbd><kbd>Space</kbd></dt><dd>Change slide</dd>
+        <dt><kbd>B</kbd></dt><dd>Black screen</dd>
+        <dt><kbd>F</kbd></dt><dd>Full screen</dd>
+      </dl>
+    </section>
+    <section class="right">
+      <div class="art" aria-hidden="true">
+        <i class="stars"></i><svg class="sun"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg>
+      </div>
+      <!-- Pairing card: empty placeholder until a PDF is picked (QR and code come in M2) -->
+      <div class="pair">
+        <div class="qr empty">Pick a PDF and your QR code appears here</div>
+        <div class="label">Room code</div>
+        <div class="code empty">--- ---</div>
+      </div>
+    </section>
   </main>
 
   <!-- Presenting: only the slide is visible -->
   <div id="stage" hidden>
     <div id="slide"></div>
-    <p id="hint">Click or press F for full screen</p>
+    <p id="hint">Click or press <kbd>F</kbd> for full screen</p>
   </div>
 
   <div id="black" aria-hidden="true"></div>

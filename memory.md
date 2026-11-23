@@ -37,3 +37,4 @@
 - 2026-11-23 Cloudflare caches CSS/JS for 4 h and the PWA service worker caches too: bump `?v=` / the cache name on every deploy. Add estains-tech.com to Firebase Auth's authorized domains or anonymous sign-in fails.
 - 2026-11-23 Duplicate mode often drops to a shared resolution (sometimes 4:3), so slides must be fit with letterboxing and re-rendered on resize.
 - 2026-11-23 Realtime Database rules cascade: a `.write` granted on a parent can't be taken away on a child. Remote permissions must be granted only on the specific child paths.
+- 2026-11-23 Theme mockups made (design-system/): sunset-sun-over-grid art on the start panel and phone moments only; main remote view stays plain dark. Buttons use dark ink (#1a0830) on the pink-orange gradient because white on pink fails AA. Anton is Latin-only, so Thai/Japanese text never uses it. Awaiting Ee's approval before building.

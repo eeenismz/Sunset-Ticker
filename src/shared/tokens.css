@@ -1,0 +1,77 @@
+/* Self-hosted display font: Anton (SIL Open Font License), Latin subset only.
+   Served from src/assets/fonts/. Thai and Japanese text never uses Anton. */
+@font-face {
+  font-family: "Anton";
+  src: url("../assets/fonts/anton-latin-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Sunset Ticker theme tokens. Reused by the laptop viewer and the phone remote.
+   Original neon dusk palette: no third-party artwork, logos or fonts. */
+:root {
+  /* Colour: night base, sunset trio, teal accent */
+  --night:      #0a0720;   /* page background */
+  --night-2:    #150c35;   /* raised panels */
+  --dusk:       #3b1167;   /* purple band of the sky */
+  --pink:       #ff2e88;   /* hot pink (sun bottom, glow) */
+  --orange:     #ff8a3d;   /* sun middle */
+  --sun:        #ffd15c;   /* sun top, highlights */
+  --teal:       #19e3d0;   /* accent: links, focus, "current" */
+  --text:       #fff4f0;   /* body text   (16:1 on --night) */
+  --text-soft:  #c4b6ec;   /* secondary   (9:1 on --night) */
+  --text-dim:   #9486c4;   /* hints only, >=5:1 on --night */
+  --ink:        #1a0830;   /* dark text on gradient buttons (6:1+ on pink and orange) */
+  --line:       rgba(255, 244, 240, .14);
+
+  /* Status dot (same meanings on laptop and phone) */
+  --st-grey:   #8a86a3;
+  --st-green:  #3dff8b;
+  --st-yellow: #ffd23f;
+  --st-red:    #ff3b4e;
+
+  /* Gradients */
+  --grad-sunset: linear-gradient(180deg, #1b0b4d 0%, #5a1685 32%, #c2287f 58%, #ff6a4d 80%, #ffb347 100%);
+  --grad-sun:    linear-gradient(180deg, #ffd15c 0%, #ff8a3d 48%, #ff2e88 100%);
+  --grad-btn:    linear-gradient(95deg, #ff2e88 0%, #ff8a3d 100%);
+  --grad-text:   linear-gradient(180deg, #ffe08a 0%, #ff8a3d 45%, #ff2e88 100%);
+
+  /* Glow */
+  --glow-pink:  0 0 18px rgba(255, 46, 136, .55), 0 0 48px rgba(255, 46, 136, .28);
+  --glow-teal:  0 0 14px rgba(25, 227, 208, .55), 0 0 36px rgba(25, 227, 208, .25);
+  --glow-text:  0 0 14px rgba(255, 46, 136, .6);
+
+  /* Type */
+  --font-display: "Anton", "Bebas Neue", Impact, "Arial Narrow", sans-serif; /* headings, big numbers only */
+  --font-body:    system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --tilt: rotate(-3deg) skewX(-6deg);    /* signature tilt for display words */
+  --track-display: .03em;
+
+  /* Radii */
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --r-pill: 999px;
+
+  /* Spacing (4px scale) */
+  --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
+  --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+
+  /* Touch */
+  --tap: 56px;            /* minimum for Next / Prev / main buttons */
+
+  /* Texture: film grain + scanlines (apply as overlay, low opacity) */
+  --tex-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+  --tex-scan: repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, transparent 1px 4px);
+
+  --focus: 0 0 0 3px var(--night), 0 0 0 6px var(--teal);
+}
+
+/* Windows Chrome paints a select's option list with the select's own colours */
+select option { background-color: var(--night-2); color: var(--text); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

@@ -3,11 +3,12 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] Theme mockups approved (1a plain phone main view, 2a glowing dot, 3a dark ink buttons); laptop start screen, hint pill, neon dot, favicon built (2026-11-23)
 - [x] M1 laptop viewer: QA passed (keys, clamping, black, letterbox 16:9/4:3/A4, retina, bad file), review fixes applied (2026-11-23)
 - [x] Read v1 spec, list risks and open questions, propose structure, data shape and milestones (2026-11-23)
 
 ## In Progress
-- [ ] Theme (moved before M2): product-designer mockups for Ee's approval, then build
+- [ ] M2 — waiting for the Firebase project (Ee creates it in the console)
 
 ## Pending
 
@@ -55,9 +56,10 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - Done check: installed PWA on iPhone survives app switch, lock/unlock and being killed, rejoining without a rescan; screen stays on for 10+ min; no gesture zooms or bounces
 
 ### Theme — Neon sunset (original art only), moved before M2 on 2026-11-23
-- [ ] Theme tokens, self-hosted display font, split-panel start screen with original sunset art (SVG/CSS)
+- [x] Theme tokens, self-hosted display font, split-panel start screen with original sunset art (SVG/CSS)
+- [ ] QR card + "Connected" moment styling (with M2), all phone screens (with M2/M3)
 - [ ] Neon status dot, "Showtime" / "That's a wrap" moments (phone only)
-- [ ] App icon: sun setting behind a single slide
+- [x] App icon: sun setting behind a single slide (PWA icon sizes with M5)
 - Done check: projector slides untouched; no third-party logos or artwork; looks right on iPhone and laptop
 
 ## Open questions
