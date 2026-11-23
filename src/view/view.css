@@ -298,11 +298,17 @@ kbd {
   color: var(--text);
   font-size: 14px;
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;          /* narrow windows: wrap onto two lines instead of overflowing */
+  justify-content: center;
+  gap: 6px 12px;
   align-items: center;
-  white-space: nowrap;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
   z-index: 10;
 }
+#hint span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+#hint .sep { color: var(--text-soft); font-weight: 700; }
 #hint kbd { font-size: 12px; padding: 1px 7px; border-bottom-width: 2px; }
 
 /* Black screen: pure black with a short fade, so it never flashes */

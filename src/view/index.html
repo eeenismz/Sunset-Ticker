@@ -66,7 +66,14 @@
   <!-- Presenting: only the slide is visible -->
   <div id="stage" hidden>
     <div id="slide"></div>
-    <p id="hint">Click or press <kbd>F</kbd> for full screen</p>
+    <!-- Shown only while not full screen: how to go full screen + the slide keys -->
+    <p id="hint">
+      <span>Click or press <kbd>F</kbd> for full screen</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span><kbd>&rarr;</kbd><kbd>&larr;</kbd><kbd>PgUp</kbd><kbd>PgDn</kbd><kbd>Space</kbd> change slide</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span><kbd>B</kbd> black screen</span>
+    </p>
   </div>
 
   <div id="black" aria-hidden="true"></div>
