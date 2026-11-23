@@ -1,3 +1,5 @@
+Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b60e13)
+
 # Sunset Ticker — todo
 
 ## Done
