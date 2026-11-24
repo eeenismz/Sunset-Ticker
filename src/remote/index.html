@@ -2,12 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <!-- viewport-fit=cover lets the page use the full iPhone screen; env(safe-area-inset-*) keeps content clear of the notch and home bar -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- viewport-fit=cover lets the page use the full iPhone screen; env(safe-area-inset-*) keeps content clear of the notch and home bar.
+       No pinch zoom: maximum-scale and user-scalable stop it (iOS also needs the gesturestart block in remote.js). -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#0a0720">
   <title>Sunset Ticker remote</title>
+  <!-- Installable (Add to Home Screen). Scope and start_url are relative, so it works under /apps/sunset-ticker/remote/ too -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <!-- iOS Home Screen app: full screen, dark status bar that sits over the sunset art, short name under the icon -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ticker">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="../assets/icon.svg">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="stylesheet" href="../shared/tokens.css?v=__V__">
   <link rel="stylesheet" href="remote.css?v=__V__">
   <script type="module" src="remote.js?v=__V__"></script>
@@ -75,6 +83,20 @@
         <span class="pill"><span class="dot green"></span><span id="showtimeDevice">Laptop connected</span></span>
         <div class="bottom">
           <button id="letsGoBtn" class="btn" type="button">Let's go</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- The laptop ended the session (room deleted): That's a wrap. Back to the code entry from here -->
+    <section id="wrapScreen" class="screen" hidden>
+      <div class="art-full" aria-hidden="true">
+        <div class="art"><i class="stars"></i><svg class="sun"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg></div>
+      </div>
+      <div class="showtime-body">
+        <h2 class="display wrap-title"><span class="tilt grad-text">That's</span><br><span class="tilt outline-text">a wrap</span></h2>
+        <p class="sub">The session ended on the laptop.</p>
+        <div class="bottom">
+          <button id="wrapAgainBtn" class="btn" type="button">Join again</button>
         </div>
       </div>
     </section>

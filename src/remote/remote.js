@@ -7,6 +7,17 @@ import { prettyCode, deviceName, startHeartbeat, watchPeer, setDot } from '../sh
 const $ = (id) => document.getElementById(id);
 const SAVED_ROOM = 'sunset-room'; // remembered so the app can rejoin after a reload (auto-resume)
 
+// No pinch zoom: iOS Safari sends these gesture events for a pinch (the viewport meta covers the rest).
+for (const type of ['gesturestart', 'gesturechange', 'gestureend']) {
+  document.addEventListener(type, (e) => e.preventDefault(), { passive: false });
+}
+
+// Service worker: caches the app shell so the page opens offline. Skipped in ?fakedb test mode,
+// so the test pages always load fresh files. A failed registration is ignored (the app works without it).
+if ('serviceWorker' in navigator && !new URLSearchParams(location.search).has('fakedb')) {
+  navigator.serviceWorker.register('sw.js?v=__V__', { scope: './' }).catch(() => {});
+}
+
 const STATUS_TEXT = {
   grey: 'Not connected',
   green: 'Connected',
@@ -25,6 +36,7 @@ let stopThumbs = () => {};
 let stopTimer = () => {};
 let stopOffset = () => {};
 let showtimeTimer = 0;
+let joining = false;      // a join (or a resume) is in progress
 
 // Slide state from the laptop: current page, page count, and thumbnails (page number -> data URL).
 let page = 1;
@@ -39,7 +51,9 @@ function setStatus(color) {
 }
 
 function show(screen) {
-  for (const id of ['joinScreen', 'showtimeScreen', 'mainScreen', 'gridScreen']) $(id).hidden = id !== screen;
+  for (const id of ['joinScreen', 'showtimeScreen', 'wrapScreen', 'mainScreen', 'gridScreen']) $(id).hidden = id !== screen;
+  // The page grid scrolls inside the screen: only then is the layout capped to the viewport (see remote.css)
+  document.querySelector('.remote').classList.toggle('grid-open', screen === 'gridScreen');
 }
 
 function joinMessage(text, isError) {
@@ -64,6 +78,12 @@ $('joinForm').addEventListener('submit', (e) => {
 $('letsGoBtn').addEventListener('click', () => {
   clearTimeout(showtimeTimer);
   show('mainScreen');
+});
+
+// After "That's a wrap": back to the code entry, ready for the next session's code.
+$('wrapAgainBtn').addEventListener('click', () => {
+  show('joinScreen');
+  input.focus();
 });
 
 $('disconnectBtn').addEventListener('click', () => {
@@ -344,6 +364,7 @@ async function join(c, resuming) {
   }
   $('joinBtn').disabled = true;
   joinMessage('Joining…');
+  joining = true;
   try {
     const meta = await relay.get(`rooms/${c}/meta`);
     if (!meta) {
@@ -385,6 +406,7 @@ async function join(c, resuming) {
     joinMessage("Couldn't join. Check your internet and try again.", true);
     return;
   } finally {
+    joining = false;
     $('joinBtn').disabled = input.value.length !== 6;
   }
 
@@ -394,11 +416,25 @@ async function join(c, resuming) {
   $('roomLabel').textContent = 'Room ' + prettyCode(c);
   joinMessage('');
   input.value = '';
+  attach(c);
+  keepAwake();
 
-  stopHeartbeat = startHeartbeat(relay, `rooms/${c}/hb/remote`);
+  if (resuming) {
+    show('mainScreen');
+  } else {
+    show('showtimeScreen');
+    showtimeTimer = setTimeout(() => show('mainScreen'), 2500);
+  }
+}
+
+// Subscribe to everything the phone needs from the room. Runs on join and again on every return to the
+// app: iOS can drop the listeners while the app sleeps, so the old ones are dropped first.
+function attach(c) {
+  stopHeartbeat(); stopPeer(); stopMeta(); stopState(); stopTimer(); stopOffset(); stopThumbs();
+  stopHeartbeat = startHeartbeat(relay, `rooms/${c}/hb/remote`); // beats at once, then every 2 s
   stopPeer = watchPeer(relay, `rooms/${c}/hb/laptop`, setStatus);
   stopMeta = relay.on(`rooms/${c}/meta`, (meta) => {
-    if (!meta) leave('The session ended on the laptop.');
+    if (!meta) leave('', true);   // the room was deleted: the laptop ended the session
     else if (meta.remote !== relay.uid) leave('The laptop released this phone. Type the code to join again.');
     else setPageCount(meta.pageCount || 0);
   });
@@ -417,18 +453,13 @@ async function join(c, resuming) {
     added: (key, url) => { thumbs.set(Number(key), url); paintThumb(Number(key)); },
     removed: (key) => { thumbs.delete(Number(key)); paintThumb(Number(key)); },
   });
-
-  if (resuming) {
-    show('mainScreen');
-  } else {
-    show('showtimeScreen');
-    showtimeTimer = setTimeout(() => show('mainScreen'), 2500);
-  }
 }
 
 // Back to the join screen, with an optional message explaining why.
-function leave(message) {
+// wrapUp = true shows "That's a wrap" instead (the laptop ended the session).
+function leave(message, wrapUp = false) {
   endDrag();
+  releaseAwake();
   stopHeartbeat(); stopPeer(); stopMeta();
   stopHeartbeat = stopPeer = stopMeta = () => {};
   clearTimeout(showtimeTimer);
@@ -437,13 +468,55 @@ function leave(message) {
   resetSlides();
   $('roomLabel').textContent = '';
   setStatus('grey');
-  show('joinScreen');
-  joinMessage(message, false);
+  show(wrapUp ? 'wrapScreen' : 'joinScreen');
+  joinMessage(wrapUp ? '' : message, false);
 }
 
 function forgetRoom() {
   try { localStorage.removeItem(SAVED_ROOM); } catch (err) { /* ignore */ }
 }
+
+// ---------- Wake lock: the screen stays on while paired ----------
+// iOS drops the lock whenever the app goes to the background, so it is asked for again on every return.
+// Unsupported, refused (Low Power Mode) or failed: stay silent, the app works without it.
+let wakeLock = null;
+let wakeRequesting = false;
+async function keepAwake() {
+  if (!code || wakeLock || wakeRequesting || document.visibilityState !== 'visible') return;
+  if (!('wakeLock' in navigator)) return;
+  wakeRequesting = true;
+  try {
+    const lock = await navigator.wakeLock.request('screen');
+    wakeLock = lock;
+    lock.addEventListener('release', () => {
+      if (wakeLock === lock) wakeLock = null;
+      setTimeout(keepAwake, 1000); // the system let go: ask again (keepAwake checks the page is visible and paired)
+    });
+  } catch (err) {
+    /* refused or unavailable: nothing to show */
+  } finally {
+    wakeRequesting = false;
+  }
+}
+function releaseAwake() {
+  const lock = wakeLock;
+  wakeLock = null;
+  if (lock) lock.release().catch(() => {});
+}
+
+// ---------- Return to the app (after the background, the lock screen, or a reload) ----------
+// The room code is saved, so the phone rejoins without a rescan and lands on the laptop's current page
+// (the state listener sets the page). Re-attach the listeners, beat the heartbeat at once, and ask for the wake lock again.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  keepAwake();
+  if (!relay) return;
+  if (code) { attach(code); return; }
+  // Not in a room, e.g. the resume failed while offline: try the saved room again.
+  let saved = null;
+  try { saved = localStorage.getItem(SAVED_ROOM); } catch (err) { /* ignore */ }
+  if (saved && !joining) join(saved, true);
+});
 
 // ---------- Start ----------
 setStatus('grey');

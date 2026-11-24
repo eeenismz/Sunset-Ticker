@@ -3,6 +3,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] M5 code: manifest + icons, versioned service worker (/remote/ only), gesture lock, phone wake lock, auto-resume on return, "That's a wrap" screen; QA 53/53 + M4 35/35 + M3 19/19 locally (2026-11-24)
 - [x] M4 code: laser pointer (150 ms hold, ~15/s), black screen on/off from phone synced with B, count-up timer with confirm reset; QA 35/35 + M3 19/19 locally (2026-11-24)
 - [x] M3 code: rules for state/cmds/thumbs/timer/laser, command queue, thumbnails (wide60 = 220 KB), phone main view + swipe + grid; QA 19/19 locally (2026-11-24)
 - [x] M2 code: rooms, QR pairing, one-phone lock, R release, heartbeats + status dots, idle/stale cleanup, phone join/Showtime/Disconnect; QA 10/10 locally, review fixes applied (2026-11-23)
@@ -58,18 +59,21 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [ ] BLOCKED (Ee): re-paste database.rules.json in the console (adds cmd types resetTimer, cmd field on)
 - Done check: dot follows the finger with acceptable lag over mobile data and disappears on release; black screen works from both sides and stays in sync
 
-### M5 — PWA install, gesture lock, wake lock, auto-resume
-- [ ] Manifest (scope `/remote/`), service worker caching the app shell, iOS meta tags + icons
-- [ ] Gesture lock: no zoom, no double-tap zoom, no bounce, no selection, no long-press menu (grid still scrolls)
-- [ ] Wake Lock on the phone, re-requested on every return to the app
-- [ ] Auto-resume: room code saved locally; on return or reload, rejoin and land on the laptop's current page
+### M5 — PWA install, gesture lock, wake lock, auto-resume (code done 2026-11-24; iPhone checks need the HTTPS deploy)
+- [x] Manifest (scope `/remote/`), service worker caching the app shell, iOS meta tags + icons
+- [x] Gesture lock: no zoom, no double-tap zoom, no bounce, no selection, no long-press menu (grid still scrolls)
+- [x] Wake Lock on the phone, re-requested on every return to the app
+- [x] Auto-resume: room code saved locally; on return or reload, rejoin and land on the laptop's current page
 - Done check: installed PWA on iPhone survives app switch, lock/unlock and being killed, rejoining without a rescan; screen stays on for 10+ min; no gesture zooms or bounces
+
+- [ ] BLOCKED (Ee): real iPhone pass after deploy (install, wake lock 10+ min, app kill → rejoin, pinch/bounce)
+- [ ] Deploy note: nginx `Cache-Control: no-cache` for remote/sw.js + manifest.webmanifest, serve .webmanifest as application/manifest+json
 
 ### Theme — Neon sunset (original art only), moved before M2 on 2026-11-23
 - [x] Theme tokens, self-hosted display font, split-panel start screen with original sunset art (SVG/CSS)
 - [x] QR card + "Connected" moment, phone join / In use / Showtime / Disconnect screens (M2)
 - [x] Phone main controls + thumbnail grid styling (with M3)
-- [ ] Neon status dot, "Showtime" / "That's a wrap" moments (phone only)
+- [x] Neon status dot, "Showtime" / "That's a wrap" moments (phone only)
 - [x] App icon: sun setting behind a single slide (PWA icon sizes with M5)
 - Done check: projector slides untouched; no third-party logos or artwork; looks right on iPhone and laptop
 
