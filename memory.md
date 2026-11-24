@@ -31,6 +31,8 @@
 - 2026-11-24 The repo is public, so the filled-in `src/shared/firebase-config.js` is gitignored; `firebase-config.example.js` is the committed template and `build.sh` copies it in when the real file is missing (Ee's choice over committing a restricted key).
 - 2026-11-24 The stale-room query uses an exact cutoff: Firebase time minus 2 h, rounded down to the minute, minus 2 min. The rules accept only cutoffs 1-3 minutes past the 2 h mark, which still keeps fresh room codes unlistable.
 
+- 2026-11-24 Phone Prev/Next is "option C" (Ee's pick from 3 product-designer mockups): a quiet outlined Prev square and a big gradient Next, so the button used ~95% of the time is obvious and a mis-tap on Prev is less likely.
+
 ## Rejected Approaches
 - 2026-11-23 Firebase Hosting (spec's choice): dropped for the droplet, see Decisions.
 - 2026-11-23 Vite (mentioned in the spec as an option): rejected to keep the no-build, plain-JS stack.
@@ -62,3 +64,4 @@
 - 2026-11-24 Testing with real Firebase needs separate Chrome profiles for laptop and phone: frames of one browser share one anonymous uid, so the rules can't tell them apart.
 - 2026-11-24 iPhone WebKit (Safari and Chrome on iOS) squeezes boxes whose height comes only from `aspect-ratio` when their flex column or grid runs short: grid rows overlapped and the Next-up preview ran into the buttons. Desktop Chrome never showed it. Phone boxes are sized with `height: 0; padding-top: N%` instead; keep a `padding` shorthand from coming after it (it reset the padding-top and made every cell 0 px tall).
 - 2026-11-24 nginx `no-cache` on sw.js was not enough: Cloudflare's zone Browser Cache TTL (4 h) rewrote it to `max-age=14400` and kept serving its edge copy (HIT). A Cloudflare Cache Rule (URI Path equals /apps/sunset-ticker/remote/sw.js → Bypass cache) fixed it; the manifest needed no rule because Cloudflare doesn't cache .webmanifest. Check the origin directly with `curl --resolve` to tell nginx from Cloudflare.
+- 2026-11-24 The laptop's file-change handler is async, so any throw inside it is silently swallowed. Anything shown at the start (like the loading screen) must be closed in a `finally`, not on each path.

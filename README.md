@@ -3,6 +3,8 @@
 A church laptop shows a PDF full screen; an iPhone PWA controls it as a clicker, through Firebase Realtime Database.
 
 - **Laptop:** open `/view/` in Chrome or Edge, pick the PDF, scan the QR (or type the 6-digit code) on the phone.
+  A loading screen covers the few seconds while the PDF opens and the room is set up. Its tips live in the
+  `TIPS` list at the top of `src/view/view.js`.
 - **Phone:** `/remote/`, added to the Home Screen. Next/prev, swipe, thumbnail grid (tap to jump),
   laser pointer (press and hold on the slide, then drag), black screen, count-up timer (starts on the first Next).
 - One phone at a time. A second phone sees "In use by <device>". Press **R** on the laptop to release it.
@@ -27,7 +29,11 @@ Full spec: `Sunset Ticker v1 Spec.md`. Tasks: `todo.md`.
 Without the config, the laptop still works keyboard-only.
 
 ### Deploy notes
-- nginx: `Cache-Control: no-cache` for `remote/sw.js` and `remote/manifest.webmanifest`; serve `.webmanifest` as `application/manifest+json`.
+- nginx (`/etc/nginx/sites-enabled/estains-tech.conf`, edit with `sudo`): two `location =` blocks give
+  `remote/sw.js` and `remote/manifest.webmanifest` `Cache-Control: no-cache`, and serve the manifest as
+  `application/manifest+json`.
+- Cloudflare: a Cache Rule (URI Path equals `/apps/sunset-ticker/remote/sw.js` → Bypass cache) stops Cloudflare's
+  4 h browser cache overriding the `no-cache`. Check with `curl -sI …/remote/sw.js`: `cf-cache-status: DYNAMIC`.
 - Phone app features (install, wake lock, service worker) need HTTPS, so test on the deployed URL, not on MAMP over the LAN.
 
 ## Laptop keys
