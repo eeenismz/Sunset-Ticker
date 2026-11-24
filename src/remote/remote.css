@@ -467,8 +467,33 @@ html { overflow-x: hidden; }
 #mainScreen > :not(.now-box) { flex-shrink: 0; }
 .next-tag { color: var(--text-soft); font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 
-.nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.nav-btn { width: 100%; min-height: 80px; padding: 0 12px; font-size: 32px; }
+.nav { display: grid; grid-template-columns: 76px 1fr; gap: 12px; }
+.nav-btn { width: 100%; padding: 0 12px; }
+.ic { width: 1em; height: 1em; flex: none; }
+/* Next: the one loud button (used ~95% of the time) */
+.nav-btn.next-btn { min-height: 88px; font-size: 44px; gap: 14px; }
+.next-btn .ic { font-size: .8em; }
+/* Prev: quiet outlined square, big chevron + small caption, sits on Next's baseline.
+   Different from Next in size, fill and shape, not only colour. */
+.prev-btn {
+  align-self: end;
+  min-height: 72px;
+  padding: 0;
+  gap: 0;
+  flex-direction: column;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--text-soft);
+  box-shadow: inset 0 0 0 2px rgba(196, 182, 236, .6);   /* ~4:1 on night, passes 3:1 for a UI boundary */
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: .06em;
+}
+.prev-btn .ic { font-size: 30px; }
+.prev-btn:disabled { background: transparent; color: var(--text-dim); box-shadow: inset 0 0 0 2px rgba(148, 134, 196, .3); }
+.prev-btn:focus-visible { box-shadow: inset 0 0 0 2px rgba(196, 182, 236, .6), var(--focus); }
 .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 #gridBtn, #disconnectBtn, #blackBtn { width: 100%; padding: 0 12px; }
 /* Narrow phones (320 px): keep "Black screen: off" on one line by using a smaller label */
@@ -498,7 +523,12 @@ html { overflow-x: hidden; }
 .btn.sm { min-height: 44px; padding: 0 18px; font-size: 22px; }
 @media (max-height: 700px) {
   .now-box { min-height: 120px; }
-  .nav-btn { min-height: 64px; }
+  .prev-btn { min-height: 64px; }
+  .nav-btn.next-btn { min-height: 76px; }
+}
+/* Very short screens (iPhone SE class): give the rows below their height back */
+@media (max-height: 600px) {
+  .nav-btn.next-btn { min-height: 64px; }
 }
 
 /* Page grid: 3 columns, scrolls inside the screen */

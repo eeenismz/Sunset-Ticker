@@ -131,8 +131,12 @@
       </div>
       <div class="bottom">
         <div class="nav">
-          <button id="prevBtn" class="btn nav-btn" type="button" disabled>Prev</button>
-          <button id="nextBtn" class="btn nav-btn" type="button">Next</button>
+          <!-- Prev is a quiet square (rarely used, a mis-tap is costly); Next is the one loud button -->
+          <button id="prevBtn" class="btn nav-btn prev-btn" type="button" aria-label="Previous slide" disabled>
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Prev</span></button>
+          <button id="nextBtn" class="btn nav-btn next-btn" type="button" aria-label="Next slide">Next
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         </div>
         <div class="tools">
           <button id="blackBtn" type="button" class="btn quiet" aria-pressed="false">Black screen: off</button>

@@ -3,6 +3,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] Phone Prev/Next redesign (option C from product-designer): quiet outlined Prev square with chevron, big gradient Next pill; fits 390x700 / 390x844 / 430x760 without scroll; M3 20/20, M4 35/35, M5 53/53 (2026-11-24)
 - [x] Laptop loading screen (original art, slow pan, status per phase, rotating tips, min 1.2 s, reduced-motion safe) + PDF.js worker started at page load; M3 20/20, M4 35/35, M5 53/53 (2026-11-24)
 - [x] Real iPhone pass by Ee on the live site (layout, pairing over mobile data, second phone refused, dot colours, Home Screen install, resume, wake lock, no zoom/bounce, That's a wrap): all passed; M2 and M5 complete (2026-11-24)
 - [x] Redeploy + cache headers: live build v=20261124161732, sw.js `no-cache` + Cloudflare DYNAMIC, manifest application/manifest+json + no-cache, other apps on the domain still 200 (2026-11-24)
