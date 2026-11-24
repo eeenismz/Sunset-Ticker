@@ -6,6 +6,10 @@ const CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/';
 // PDF.js wraps a cross-origin worker URL in a same-origin blob itself, so a CDN URL works here.
 pdfjsLib.GlobalWorkerOptions.workerSrc = CDN + 'build/pdf.worker.min.mjs';
 
+// Start the worker now (1.4 MB download on the first visit) instead of on the first PDF pick,
+// so "Opening your slides" doesn't also wait for it. Every PDF opened shares this one worker.
+const worker = new pdfjsLib.PDFWorker();
+
 // Open a PDF picked from the laptop. The bytes stay in memory, nothing is uploaded.
 // cMaps + standard fonts are needed for Thai/Japanese text and PDFs without embedded fonts;
 // without them PDF.js only warns in the console and the text goes missing.
@@ -13,6 +17,7 @@ export async function openPdf(file) {
   const data = new Uint8Array(await file.arrayBuffer());
   return pdfjsLib.getDocument({
     data,
+    worker,
     cMapUrl: CDN + 'cmaps/',
     cMapPacked: true,
     standardFontDataUrl: CDN + 'standard_fonts/',

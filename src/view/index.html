@@ -103,6 +103,24 @@
     </div>
   </div>
 
+  <!-- Loading screen: full screen while the PDF opens and the room is set up.
+       Original art only (the shared sunset / palm symbols), slowly panning like a film shot. -->
+  <div id="loading" hidden>
+    <div class="pan" aria-hidden="true">
+      <div class="art">
+        <i class="stars"></i><svg class="sun"><use href="#sunart"/></svg><i class="floor"></i><svg class="palm l"><use href="#palm"/></svg><svg class="palm r"><use href="#palm"/></svg>
+      </div>
+    </div>
+    <div class="loading-shade" aria-hidden="true"></div>
+    <div class="loading-main">
+      <h2 class="display"><span class="tilt grad-text">Sunset</span><br><span class="tilt outline-text">Ticker</span></h2>
+      <p id="loadingStatus" class="loading-status" role="status">Opening your slides&hellip;</p>
+      <!-- Fill width follows --progress (0 to 1), set from view.js per loading phase -->
+      <div class="loading-bar"><i></i></div>
+    </div>
+    <p class="loading-tip"><span class="tip-label">Tip</span><span id="loadingTip"></span></p>
+  </div>
+
   <!-- Connection status dot: grey = no remote paired yet (relay comes in M2) -->
   <div id="dot" class="grey" title="Waiting, no remote paired yet"></div>
 </body>

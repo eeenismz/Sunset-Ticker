@@ -39,16 +39,78 @@ function showMsg(text, isError) {
   msgEl.classList.toggle('error', !!isError);
 }
 
+// ---------- Loading screen (while the PDF opens and the room is set up) ----------
+// Edit the tips here. Keep each one short: it is read at a glance.
+const TIPS = [
+  'Press B to black the screen, for example during prayer. The slides stay where they are.',
+  'Go full screen (F) before people arrive, so nobody sees the "press Esc" banner.',
+  'Phone acting up? Press R to release it, then pair a backup phone.',
+  'Your PDF never leaves this laptop. The phone only gets small previews.',
+  'Keyboard and Bluetooth clickers always work, even without the phone.',
+];
+const LOADING_MIN_MS = 1200; // stay at least this long, so a fast open doesn't just flash
+const loadingEl = $('loading');
+const tipEl = $('loadingTip');
+let loadingGen = 0;          // bumped by every show / hide, so an older hide can't close a newer show
+let loadingShownAt = 0;
+let tipTimer = 0;
+let tipIndex = Math.floor(Math.random() * TIPS.length);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Show the loading screen (or just update it) with a status line and bar fill (0 to 1).
+function showLoading(status, progress) {
+  loadingGen++;
+  if (loadingEl.hidden || loadingEl.classList.contains('out')) {
+    loadingEl.classList.remove('out');
+    loadingEl.hidden = false;
+    loadingShownAt = Date.now();
+    tipEl.textContent = TIPS[tipIndex];
+    clearInterval(tipTimer);
+    tipTimer = setInterval(nextTip, 4500);
+  }
+  $('loadingStatus').textContent = status;
+  loadingEl.style.setProperty('--progress', progress);
+}
+
+// Next tip with a short cross-fade.
+function nextTip() {
+  tipEl.classList.add('fading');
+  setTimeout(() => {
+    tipIndex = (tipIndex + 1) % TIPS.length;
+    tipEl.textContent = TIPS[tipIndex];
+    tipEl.classList.remove('fading');
+  }, 400);
+}
+
+// Fill the bar, wait out the minimum time, then fade away. The screen underneath
+// (pairing, slides or the error message) is already in place when this is called.
+async function hideLoading() {
+  if (loadingEl.hidden) return;
+  const my = ++loadingGen;
+  loadingEl.style.setProperty('--progress', 1);
+  const wait = LOADING_MIN_MS - (Date.now() - loadingShownAt);
+  if (wait > 0) await sleep(wait);
+  if (my !== loadingGen) return; // a new PDF pick started meanwhile
+  loadingEl.classList.add('out');
+  await sleep(400);              // matches the CSS fade
+  if (my !== loadingGen) return;
+  loadingEl.hidden = true;
+  loadingEl.classList.remove('out');
+  clearInterval(tipTimer);
+}
+
 // ---------- Opening the PDF ----------
 fileEl.addEventListener('change', async () => {
   const file = fileEl.files[0];
   if (!file) return;
-  showMsg('Opening…');
+  showMsg('');
+  showLoading('Opening your slides…', 0.35);
   try {
     engine = await enginePromise;
   } catch (err) {
     showMsg("Can't load the PDF engine. This page needs internet.", true);
     fileEl.value = '';
+    hideLoading();
     return;
   }
   let doc;
@@ -59,6 +121,7 @@ fileEl.addEventListener('change', async () => {
       ? 'This PDF is password protected. Save a copy without a password and try again.'
       : 'Could not open that file. Please pick a PDF.', true);
     fileEl.value = '';
+    hideLoading();
     return;
   }
   // A newly picked PDF replaces the old one (same room, same phone).
@@ -73,11 +136,13 @@ fileEl.addEventListener('change', async () => {
   activity();
 
   // Pair a phone if the relay works; otherwise go straight to the slides (keyboard only).
+  if (!room) showLoading('Setting up the room…', 0.7);
   let r = null;
   try { r = await relayPromise; } catch (err) { /* keyboard only */ }
   if (!r) {
     setDot(dotEl, 'grey');
     showStage();
+    hideLoading();
     return;
   }
   try {
@@ -94,6 +159,7 @@ fileEl.addEventListener('change', async () => {
     setDot(dotEl, 'red');
     showStage();
   }
+  hideLoading();
 });
 
 // Firebase calls can hang while offline; give up after ms so the laptop falls back to keyboard-only.

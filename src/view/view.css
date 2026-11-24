@@ -394,6 +394,109 @@ kbd {
 }
 .moment-card .sub { margin: 14px 0 0; color: var(--text-soft); font-size: 18px; }
 
+/* ---------- Loading screen (PDF opening + room setup) ----------
+   Full-screen art with a slow pan and zoom, big title bottom left, tip bottom right.
+   Only transform and opacity animate, so it stays smooth on a projector. */
+#loading {
+  position: fixed;
+  inset: 0;
+  z-index: 11;           /* above everything, including #hint and #dot */
+  overflow: hidden;
+  background: var(--night);
+  --progress: 0;         /* 0 to 1, set from view.js for each loading phase */
+  transition: opacity .4s ease;
+}
+#loading:not([hidden]) { animation: moment-in .3s ease both; }
+#loading.out { opacity: 0; }
+/* The art is a little larger than the screen so the pan never shows an edge */
+#loading .pan {
+  position: absolute;
+  inset: -6%;
+  animation: loading-pan 22s ease-in-out infinite alternate;
+  will-change: transform;
+}
+#loading .art { --horizon: 30%; --sun-w: min(820px, 62vw); --palm-h: min(900px, 110vh); }
+@keyframes loading-pan {
+  from { transform: scale(1.02) translate(-2%, 1%); }
+  to   { transform: scale(1.12) translate(2%, -1.5%); }
+}
+/* Darkens the bottom and the left so the title and tip read over the art */
+.loading-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(0deg, rgba(10, 7, 32, .92) 0%, rgba(10, 7, 32, .55) 30%, transparent 58%),
+    linear-gradient(90deg, rgba(10, 7, 32, .6) 0%, transparent 45%);
+}
+.loading-main {
+  position: absolute;
+  z-index: 2;
+  left: 6vw;
+  bottom: 8vh;
+  width: min(560px, 80vw);
+}
+.loading-main .display { font-size: clamp(72px, 9vw, 150px); line-height: .88; }
+.loading-status {
+  margin: 26px 0 0;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+/* Neon bar: fills to --progress, plus a light sweep so it looks alive while a phase waits */
+.loading-bar {
+  position: relative;
+  margin-top: 16px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 244, 240, .14);
+  overflow: hidden;
+}
+.loading-bar i {
+  position: absolute;
+  inset: 0;
+  background: var(--grad-btn);
+  box-shadow: var(--glow-pink);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--progress));
+  transition: transform .6s ease;
+}
+.loading-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .35), transparent);
+  animation: loading-sweep 1.6s linear infinite;
+}
+@keyframes loading-sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(340%); }
+}
+.loading-tip {
+  position: absolute;
+  z-index: 2;
+  right: 6vw;
+  bottom: 8vh;
+  max-width: 380px;
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 18px;
+  line-height: 1.45;
+}
+.loading-tip .tip-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--teal);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+#loadingTip { display: block; transition: opacity .4s ease; }
+#loadingTip.fading { opacity: 0; }
+
 /* Short laptop windows: smaller QR and code so the whole card still fits */
 @media (max-height: 760px) {
   .qr { width: 200px; height: 200px; margin-bottom: 16px; }
@@ -530,4 +633,7 @@ kbd {
   .moment-card { width: calc(100% - 32px); padding: 32px 24px 28px; border-radius: 26px; }
   .moment-card .display { font-size: 80px; }
   .moment-card .dev { font-size: 22px; }
+  /* Loading screen: title and tip stacked at the bottom instead of side by side */
+  .loading-main { left: 16px; right: 16px; width: auto; bottom: 170px; }
+  .loading-tip { left: 16px; right: 16px; max-width: none; bottom: 32px; }
 }
