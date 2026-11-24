@@ -3,6 +3,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] Real iPhone pass by Ee on the live site (layout, pairing over mobile data, second phone refused, dot colours, Home Screen install, resume, wake lock, no zoom/bounce, That's a wrap): all passed; M2 and M5 complete (2026-11-24)
 - [x] Redeploy + cache headers: live build v=20261124161732, sw.js `no-cache` + Cloudflare DYNAMIC, manifest application/manifest+json + no-cache, other apps on the domain still 200 (2026-11-24)
 - [x] iPhone layout fix (WebKit): grid cells and Next-up preview sized by padding instead of aspect-ratio, main view rows don't shrink, current slide fills the leftover height; M3 20/20, M4 35/35, M5 53/53, no page scroll at 390x700 / 390x844 / 430x760 (2026-11-24)
 - [x] Real-Firebase test pass: rules 42/42 (REST, 3 users), end-to-end laptop + 2 phones in separate profiles 20/20; fixed roomIndex query rule (endAt only matches exactly) and root multi-path updates in db.js; Firebase config kept out of git (2026-11-24)
@@ -18,7 +19,6 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Read v1 spec, list risks and open questions, propose structure, data shape and milestones (2026-11-23)
 
 ## In Progress
-- [ ] M2 + M5 — deployed with layout fix (v=20261124161732) and cache headers; waiting on the real iPhone pass
 
 ## Pending
 
@@ -32,7 +32,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Screen Wake Lock on the laptop so it never dims mid-sermon
 - Done check: 60-page PDF opens, flips with keyboard and a Bluetooth clicker, B toggles black, cursor hidden, no UI visible, 4:3 and 16:9 window both letterbox correctly
 
-### M2 — Room, pairing, status dot on both sides (code done 2026-11-23; real-Firebase test + deploy waiting on Ee)
+### M2 ✅ (2026-11-24) — Room, pairing, status dot on both sides
 - [x] Firebase project (Realtime Database in Singapore + Anonymous Auth), `src/shared/firebase-config.js` filled (gitignored), estains-tech.com in Auth authorized domains (2026-11-24)
 - [x] `database.rules.json` (room lock to first phone, size limits, stale-room delete) — written and reviewed, not yet pasted into the console
 - [x] Rules pasted in the console + real-Firebase test pass (claim on a held room, stale delete by a 2nd laptop, roomIndex query, pairing) (2026-11-24)
@@ -46,7 +46,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Local Firebase stand-in (`?fakedb`, src/ only, never in dist/) so pairing is testable without the Firebase project
 - Done check: pair from iPhone over mobile data; second phone is refused; turn phone Wi-Fi/data off → yellow then red within ~10 s; back on → green; room gone from the database after End session
 
-### M3 — Next / prev / goto + thumbnail grid (code done 2026-11-24; rules need re-paste by Ee)
+### M3 ✅ (2026-11-24) — Next / prev / goto + thumbnail grid
 - [x] Extend database.rules.json for state / cmds / thumbs / timer / laser (`$other` blocks new paths)
 - [x] Re-paste database.rules.json in the console (2026-11-24)
 - [x] Phone commands must count as laptop activity (else the 2 h idle end kills a live session)
@@ -56,7 +56,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Thumbnail grid, current page highlighted, tap to jump
 - Done check: 5 fast taps = 5 pages (none lost); keyboard flips on laptop update the phone; 60-page PDF ≈ 1 MB of thumbnails
 
-### M4 — Laser pointer, black screen, timer (code done 2026-11-24; rules need re-paste by Ee)
+### M4 ✅ (2026-11-24) — Laser pointer, black screen, timer
 - [x] Hold-and-drag on the current page preview → red dot on the laptop (throttled ~15/s, normalized 0–1 coords)
 - [x] Black screen toggle on phone, synced with the B key
 - [x] Timer counts up, starts on the first Next (phone or keyboard); start time kept in the room so a phone reload keeps it
@@ -64,14 +64,14 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Re-paste database.rules.json in the console (adds cmd types resetTimer, cmd field on) (2026-11-24)
 - Done check: dot follows the finger with acceptable lag over mobile data and disappears on release; black screen works from both sides and stays in sync
 
-### M5 — PWA install, gesture lock, wake lock, auto-resume (code done 2026-11-24; iPhone checks need the HTTPS deploy)
+### M5 ✅ (2026-11-24) — PWA install, gesture lock, wake lock, auto-resume
 - [x] Manifest (scope `/remote/`), service worker caching the app shell, iOS meta tags + icons
 - [x] Gesture lock: no zoom, no double-tap zoom, no bounce, no selection, no long-press menu (grid still scrolls)
 - [x] Wake Lock on the phone, re-requested on every return to the app
 - [x] Auto-resume: room code saved locally; on return or reload, rejoin and land on the laptop's current page
 - Done check: installed PWA on iPhone survives app switch, lock/unlock and being killed, rejoining without a rescan; screen stays on for 10+ min; no gesture zooms or bounces
 
-- [ ] BLOCKED (Ee): real iPhone pass after deploy (install, wake lock 10+ min, app kill → rejoin, pinch/bounce)
+- [x] Real iPhone pass after deploy (install, wake lock 10+ min, app kill → rejoin, pinch/bounce) — Ee: all passed (2026-11-24)
 - [x] Deploy: nginx `no-cache` for remote/sw.js + manifest.webmanifest, manifest served as application/manifest+json, Cloudflare Cache Rule bypasses sw.js; checked with curl (2026-11-24)
 
 ### Theme — Neon sunset (original art only), moved before M2 on 2026-11-23
