@@ -24,6 +24,11 @@
 - 2026-11-23 Accepted for v1: room codes are 6 digits and the `meta` of any room is readable by any signed-in user, so codes can be probed and a free room claimed by anyone who guesses the code. Mitigated by the one-phone lock, the R release and the laptop owning all state.
 - 2026-11-23 If Firebase is not configured or unreachable (8 s timeout), the laptop goes straight to the slides, keyboard-only.
 
+- 2026-11-24 Phone commands more than 10 s old are removed without being applied when the laptop reconnects, so a burst of taps from a Wi-Fi drop doesn't make the slides jump.
+- 2026-11-24 The laser pointer starts after a 150 ms press-and-hold on the slide. Moving more than 8 px before that counts as a swipe. Only Next starts the timer, not grid jumps or Home/End.
+- 2026-11-24 Pinch zoom is blocked on the phone remote, which hurts accessibility (WCAG 1.4.4). This is open for Ee to review.
+- 2026-11-24 "That's a wrap" shows only when the laptop deletes the room. It doesn't show on the phone's Disconnect or the R release.
+
 ## Rejected Approaches
 - 2026-11-23 Firebase Hosting (spec's choice): dropped for the droplet, see Decisions.
 - 2026-11-23 Vite (mentioned in the spec as an option): rejected to keep the no-build, plain-JS stack.
@@ -45,3 +50,6 @@
 - 2026-11-23 Theme mockups made (design-system/): sunset-sun-over-grid art on the start panel and phone moments only; main remote view stays plain dark. Buttons use dark ink (#1a0830) on the pink-orange gradient because white on pink fails AA. Anton is Latin-only, so Thai/Japanese text never uses it. Awaiting Ee's approval before building.
 - 2026-11-23 `database.rules.json` ends every room with `$other: .validate false`: any new path (M3 state/cmds/thumbs) is rejected until the rules are extended and re-pasted in the console.
 - 2026-11-23 For driving headless Chrome over DevTools, Node 24 at ~/.nvm/versions/node/v24.16.0 has a built-in WebSocket (Node 18, the nvm default, doesn't); see tests/m2-cdp.mjs.
+- 2026-11-24 The owner's room-level `.write` covers every path inside the room, so the laptop *can* delete `laser`. A builder assumed it couldn't.
+- 2026-11-24 Rooms created without a `roomIndex` entry are never cleaned up by the lazy 2 h cleanup (parked in todo.md under "Later").
+- 2026-11-24 `sw.js` and the manifest have fixed URLs, and Cloudflare caches .js for 4 h, so they need `no-cache` at nginx or phones pick up new versions late.
