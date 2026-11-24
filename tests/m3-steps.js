@@ -70,6 +70,13 @@ const reLabel = await waitFor(() => T.visible('phA', 'mainScreen') && T.text('ph
 ok('phone reload shows Page 20 of 60', reLabel, T.text('phA', 'pageLabel'));
 ok('phone reload shows thumbnail again', await waitFor(() => { const i = phone('phA').getElementById('nowImg'); return !i.hidden && i.src.startsWith('data:image/jpeg'); }));
 
+// 8b. A stale tap (at = 20 s ago, e.g. queued while the laptop was offline) is removed but not applied.
+const staleBefore = lapState(code).page;
+await $('lap').contentWindow.__relay.push(`rooms/${code}/cmds`, { type: 'next', at: Date.now() - 20000 });
+const staleGone = await waitFor(() => !(((T.db().rooms || {})[code] || {}).cmds) || Object.keys(((T.db().rooms || {})[code] || {}).cmds).length === 0);
+await T.sleep(800);
+ok('stale cmd (20 s old) is removed and page does not change', staleGone && lapState(code).page === staleBefore, { before: staleBefore, after: lapState(code).page, removed: staleGone });
+
 // 9. Laptop R key (release) keeps the room; the phone leaves.
 T.key('r');
 ok('R release: phone back on join screen', await waitFor(() => T.visible('phA', 'joinScreen')));

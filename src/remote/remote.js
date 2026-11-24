@@ -174,7 +174,8 @@ function formatTimer(ms) {
 function renderTimer() {
   $('timer').textContent = timerStartAt === null ? '0:00' : formatTimer(Date.now() + serverOffsetMs - timerStartAt);
 }
-setInterval(renderTimer, 500);
+// The 500 ms tick only runs while paired: started in attach() (join and every return), cleared in leave().
+let timerTick = null;
 
 // Reset has a confirm step (in-page, not window.confirm). A forgotten confirm closes itself after 6 s.
 let resetHide = 0;
@@ -431,6 +432,7 @@ async function join(c, resuming) {
 // app: iOS can drop the listeners while the app sleeps, so the old ones are dropped first.
 function attach(c) {
   stopHeartbeat(); stopPeer(); stopMeta(); stopState(); stopTimer(); stopOffset(); stopThumbs();
+  if (!timerTick) timerTick = setInterval(renderTimer, 500);
   stopHeartbeat = startHeartbeat(relay, `rooms/${c}/hb/remote`); // beats at once, then every 2 s
   stopPeer = watchPeer(relay, `rooms/${c}/hb/laptop`, setStatus);
   stopMeta = relay.on(`rooms/${c}/meta`, (meta) => {
@@ -462,6 +464,7 @@ function leave(message, wrapUp = false) {
   releaseAwake();
   stopHeartbeat(); stopPeer(); stopMeta();
   stopHeartbeat = stopPeer = stopMeta = () => {};
+  clearInterval(timerTick); timerTick = null;
   clearTimeout(showtimeTimer);
   code = null;
   forgetRoom();

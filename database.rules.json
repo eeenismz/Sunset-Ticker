@@ -48,7 +48,7 @@
             "type": { ".validate": "newData.val() === 'next' || newData.val() === 'prev' || newData.val() === 'goto' || newData.val() === 'black' || newData.val() === 'resetTimer'" },
             "page": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 1000" },
             "on": { ".validate": "newData.isBoolean()" },
-            "at": { ".validate": "newData.isNumber()" },
+            "at": { ".validate": "newData.isNumber() && newData.val() <= now" },
             "$other": { ".validate": false }
           }
         },

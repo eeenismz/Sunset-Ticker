@@ -143,6 +143,7 @@ function showMoment() {
 
 // ---------- Room (pairing with one phone) ----------
 let relay = null;      // the connected relay, once a room exists
+let serverOffsetMs = 0; // server clock minus this laptop's clock (0 with the fake relay)
 let room = null;       // 6-digit room code
 let remoteUid = null;  // the paired phone's id, or null
 let remoteName = '';
@@ -160,6 +161,7 @@ function createRoom(r) {
 
 async function doCreateRoom(r) {
   relay = r;
+  relay.serverOffset((ms) => { serverOffsetMs = ms; });
   cleanupStaleRooms();
   for (let tries = 0; tries < 5 && !room; tries++) {
     const code = newCode();
@@ -348,11 +350,17 @@ function publishState(force) {
 // The phone pushes {type, page?, at} into rooms/<code>/cmds. Each one is applied in arrival
 // order and then removed, so a fast run of taps is never lost and nothing is replayed later.
 let stopCmds = () => {};
+// A command older than this (server time) was sent before a dropout or a long pause; skip it.
+const STALE_CMD_MS = 10000;
 function listenCommands() {
   stopCmds();
   stopCmds = relay.children(`rooms/${room}/cmds`, {
     added: (key, cmd) => {
       relay.remove(`rooms/${room}/cmds/${key}`).catch(() => {});
+      // Taps queued while the laptop was offline arrive in a burst on reconnect; replaying them would
+      // jump several slides at once. Removed above, but not applied. The phone's `at` is server time,
+      // so compare it with the server's now (local clock + offset).
+      if (cmd && typeof cmd.at === 'number' && Date.now() + serverOffsetMs - cmd.at > STALE_CMD_MS) return;
       applyCommand(cmd);
     },
   });
