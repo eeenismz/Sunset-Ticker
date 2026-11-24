@@ -6,6 +6,7 @@ const KEY = 'sunset-fakedb';
 const TS_MARK = { '.sv': 'timestamp' };
 let offline = false;      // setOffline(true) simulates this tab losing its connection
 const listeners = new Set();
+const childListeners = new Set();   // children() subscriptions: { path, h, seen }
 const connListeners = new Set();
 
 // Each page gets its own id; ?fakeuid=name overrides it (to act as a second phone).
@@ -69,6 +70,32 @@ function notify() {
     const json = JSON.stringify(valueAt(tree, l.path));
     if (json !== l.last) { l.last = json; l.cb(JSON.parse(json)); }
   }
+  for (const l of childListeners) scanChildren(l);
+}
+
+// Compare one children() subscription with the stored tree and report what changed.
+// A callback often writes (the laptop removes a command it just read), which calls notify()
+// again while we are still in the loop. That nested call only sets `again`, and this loop
+// re-scans a fresh tree when it finishes. Without this, a stale loop re-reports children
+// that were already handled (the commands would be applied twice).
+function scanChildren(l) {
+  if (l.busy) { l.again = true; return; }
+  l.busy = true;
+  try {
+    do {
+      l.again = false;
+      const obj = valueAt(load(), l.path) || {};
+      for (const k of Object.keys(obj)) {
+        const json = JSON.stringify(obj[k]);
+        if (l.seen[k] !== json) { l.seen[k] = json; if (l.h.added) l.h.added(k, JSON.parse(json)); }
+      }
+      for (const k of Object.keys(l.seen)) {
+        if (!(k in obj)) { delete l.seen[k]; if (l.h.removed) l.h.removed(k); }
+      }
+    } while (l.again);
+  } finally {
+    l.busy = false;
+  }
 }
 window.addEventListener('storage', (e) => { if (e.key === KEY) notify(); });
 
@@ -80,11 +107,26 @@ export const update = (path, values) => commit((t) => {
   return t;
 });
 
+// Adds a child with a unique key (like Firebase push ids); resolves to the key.
+export function push(path, value) {
+  const key = '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  return commit((t) => writeAt(t, path + '/' + key, resolveTs(value))).then(() => key);
+}
+
 export function on(path, cb) {
   const l = { path, cb, last: undefined };
   listeners.add(l);
   setTimeout(() => { if (listeners.has(l) && !offline) { l.last = JSON.stringify(valueAt(load(), path)); cb(JSON.parse(l.last)); } }, 0);
   return () => listeners.delete(l);
+}
+
+// Calls h.added(key, value) for each child now and when one is added or changed,
+// and h.removed(key) when one goes. Returns an unsubscribe function.
+export function children(path, h) {
+  const l = { path, h, seen: {}, busy: false, again: false };
+  childListeners.add(l);
+  setTimeout(() => { if (childListeners.has(l) && !offline) scanChildren(l); }, 0);
+  return () => childListeners.delete(l);
 }
 
 export async function claim(path, who) {

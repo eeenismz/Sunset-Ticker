@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>M3 harness</title>
+<style>
+  body { margin: 0; background: #222; color: #eee; font: 13px system-ui; display: flex; gap: 8px; padding: 8px; }
+  iframe { border: 1px solid #555; background: #000; }
+</style>
+</head>
+<body>
+<!-- Local test for M3 (next / prev / goto, keyboard sync, thumbnails) using the fake relay (?fakedb).
+     Serves from src/ (dist/ doesn't ship the fake relay). Run the steps with tests/m3-steps.js:
+     PATH=<node24>/bin node tests/m2-cdp.mjs http://localhost:8888/workplaces/sunset-ticker/tests/m3-harness.html tests/m3-steps.js -->
+<iframe id="lap" src="../src/view/?fakedb" width="900" height="560"></iframe>
+<iframe id="phA" src="about:blank" width="390" height="800"></iframe>
+<script>
+localStorage.removeItem('sunset-fakedb'); // fresh database each run
+localStorage.removeItem('sunset-room');
+const $ = (id) => document.getElementById(id);
+const doc = (id) => $(id).contentDocument;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+window.T = {
+  db: () => JSON.parse(localStorage.getItem('sunset-fakedb') || '{}'),
+  async pickPdf(name = 'wide60') {
+    const blob = await (await fetch('fixtures/' + name + '.pdf')).blob();
+    const input = doc('lap').getElementById('file');
+    const dt = new DataTransfer();
+    dt.items.add(new File([blob], name + '.pdf', { type: 'application/pdf' }));
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change'));
+  },
+  roomCode: () => doc('lap').getElementById('roomCode').textContent.replace(/\D/g, ''),
+  openPhone(id, query) { $(id).src = '../src/remote/?fakedb&fakeuid=' + id + (query || ''); },
+  typeCode(id, code) {
+    const d = doc(id), input = d.getElementById('codeInput');
+    input.value = code;
+    input.dispatchEvent(new Event('input'));
+    d.getElementById('joinForm').requestSubmit();
+  },
+  key(k) { doc('lap').dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true })); },
+  visible: (id, el) => { const e = doc(id).getElementById(el); return !!e && !e.hidden; },
+  text: (id, el) => doc(id).getElementById(el)?.textContent.trim(),
+  sleep,
+};
+</script>
+</body>
+</html>

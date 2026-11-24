@@ -396,17 +396,6 @@ input, textarea { -webkit-user-select: text; user-select: text; }
 }
 .showtime-body .bottom .btn { width: 100%; min-height: 64px; }
 
-/* ---------- Main view placeholder (M3 adds the controls) ---------- */
-.card {
-  margin-top: 16px;
-  padding: 24px;
-  border-radius: var(--r-lg);
-  background: var(--night-2);
-  border: 1px solid var(--line);
-}
-.card .display { font-size: clamp(44px, 16vw, 64px); } /* fits 320px phones */
-.card p { margin: 14px 0 0; color: var(--text-soft); font-size: 17px; line-height: 1.45; }
-
 /* Short phones (320 x 568 and similar): tighter title so the join form fits */
 @media (max-height: 640px) {
   .join-title { font-size: 40px; }
@@ -414,3 +403,84 @@ input, textarea { -webkit-user-select: text; user-select: text; }
 
 /* Never scroll sideways, even if something is a few px too wide (iOS lets html scroll) */
 html { overflow-x: hidden; }
+
+/* ---------- Slides (M3): current slide, next preview, Prev / Next, page grid ---------- */
+/* A thumbnail frame: the placeholder text sits behind the picture, so it shows until the image arrives */
+.thumb-box {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: var(--night-2);
+  border: 1px solid var(--line);
+}
+.thumb-box .ph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  font-size: 15px;
+}
+.thumb-box img { position: relative; display: block; width: 100%; height: 100%; object-fit: contain; }
+
+.now-box { flex: 1 1 auto; min-height: 200px; margin-top: 12px; }
+.page-label {
+  margin: 14px 0 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 34px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.next-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+.next-box { flex: none; width: 42%; aspect-ratio: 16 / 10; }
+.next-tag { color: var(--text-soft); font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+
+.nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.nav-btn { width: 100%; min-height: 80px; padding: 0 12px; font-size: 32px; }
+#gridBtn, #disconnectBtn { width: 100%; }
+
+/* Page grid: 3 columns, scrolls inside the screen */
+.grid-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+.grid-head .display { font-size: 40px; }
+.grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-content: start;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 4px 2px 16px;
+}
+.thumb-cell {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--night-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  cursor: pointer;
+}
+.thumb-cell img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.thumb-cell .num {
+  position: absolute;
+  left: 5px;
+  bottom: 4px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(10, 7, 32, .8);
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: 700;
+}
+/* Current slide: teal ring with a glow (not colour alone: the number is still shown) */
+.thumb-cell.current { box-shadow: 0 0 0 2px var(--night), 0 0 0 4px var(--teal), var(--glow-teal); }
+.thumb-cell.current .num { color: var(--teal); }
+.thumb-cell:focus-visible { outline: none; box-shadow: var(--focus); }

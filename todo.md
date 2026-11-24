@@ -3,6 +3,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] M3 code: rules for state/cmds/thumbs/timer/laser, command queue, thumbnails (wide60 = 220 KB), phone main view + swipe + grid; QA 19/19 locally (2026-11-24)
 - [x] M2 code: rooms, QR pairing, one-phone lock, R release, heartbeats + status dots, idle/stale cleanup, phone join/Showtime/Disconnect; QA 10/10 locally, review fixes applied (2026-11-23)
 - [x] Full screen hint shows whenever the slide isn't full screen, also after Esc, and lists the slide keys (→ ← PgUp PgDn Space, B) (2026-11-23)
 - [x] Theme mockups approved (1a plain phone main view, 2a glowing dot, 3a dark ink buttons); laptop start screen, hint pill, neon dot, favicon built (2026-11-23)
@@ -38,13 +39,14 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Local Firebase stand-in (`?fakedb`, src/ only, never in dist/) so pairing is testable without the Firebase project
 - Done check: pair from iPhone over mobile data; second phone is refused; turn phone Wi-Fi/data off → yellow then red within ~10 s; back on → green; room gone from the database after End session
 
-### M3 — Next / prev / goto + thumbnail grid
-- [ ] Extend database.rules.json for state / cmds / thumbs / timer (`$other` blocks new paths) and re-paste in the console
-- [ ] Phone commands must count as laptop activity (else the 2 h idle end kills a live session)
-- [ ] Laptop renders ~15 KB JPEG thumbnails and pushes them progressively
-- [ ] Command queue (phone pushes, laptop applies in order and removes); laptop owns `state.page`
-- [ ] Phone main view: current page, next-page preview, page X of Y, big Next/Prev, swipe
-- [ ] Thumbnail grid, current page highlighted, tap to jump
+### M3 — Next / prev / goto + thumbnail grid (code done 2026-11-24; rules need re-paste by Ee)
+- [x] Extend database.rules.json for state / cmds / thumbs / timer / laser (`$other` blocks new paths)
+- [ ] BLOCKED (Ee): re-paste database.rules.json in the console
+- [x] Phone commands must count as laptop activity (else the 2 h idle end kills a live session)
+- [x] Laptop renders ~15 KB JPEG thumbnails and pushes them progressively
+- [x] Command queue (phone pushes, laptop applies in order and removes); laptop owns `state.page`
+- [x] Phone main view: current page, next-page preview, page X of Y, big Next/Prev, swipe
+- [x] Thumbnail grid, current page highlighted, tap to jump
 - Done check: 5 fast taps = 5 pages (none lost); keyboard flips on laptop update the phone; 60-page PDF ≈ 1 MB of thumbnails
 
 ### M4 — Laser pointer, black screen, timer
@@ -64,7 +66,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 ### Theme — Neon sunset (original art only), moved before M2 on 2026-11-23
 - [x] Theme tokens, self-hosted display font, split-panel start screen with original sunset art (SVG/CSS)
 - [x] QR card + "Connected" moment, phone join / In use / Showtime / Disconnect screens (M2)
-- [ ] Phone main controls + thumbnail grid styling (with M3)
+- [x] Phone main controls + thumbnail grid styling (with M3)
 - [ ] Neon status dot, "Showtime" / "That's a wrap" moments (phone only)
 - [x] App icon: sun setting behind a single slide (PWA icon sizes with M5)
 - Done check: projector slides untouched; no third-party logos or artwork; looks right on iPhone and laptop

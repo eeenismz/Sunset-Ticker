@@ -1,7 +1,7 @@
 // The relay between laptop and phone: Firebase Realtime Database, or (for local
 // testing with ?fakedb in the URL) a stand-in that only works between tabs of one browser.
 // Both offer the same small path-based API, so the rest of the app never touches Firebase directly:
-//   uid, TS (server time marker), get, set, update, remove, on, claim, connected, staleKeys
+//   uid, TS (server time marker), get, set, update, remove, push, on, children, claim, connected, staleKeys
 import { firebaseConfig } from './firebase-config.js?v=__V__';
 
 const FB = 'https://www.gstatic.com/firebasejs/11.0.2/';
@@ -40,6 +40,23 @@ export async function connectRelay() {
     remove: (path) => rtdb.remove(R(path)),
     // Calls cb(value) now and on every change; returns an unsubscribe function.
     on: (path, cb) => rtdb.onValue(R(path), (snap) => cb(snap.val())),
+    // Adds a child under path with a new unique (time-ordered) key; resolves to that key.
+    async push(path, value) {
+      const ref = rtdb.push(R(path));
+      await rtdb.set(ref, value);
+      return ref.key;
+    },
+    // Calls h.added(key, value) for each child now and whenever one is added or changed,
+    // and h.removed(key) when one goes. Returns an unsubscribe function.
+    children(path, h) {
+      const ref = R(path);
+      const offs = [
+        rtdb.onChildAdded(ref, (snap) => h.added && h.added(snap.key, snap.val())),
+        rtdb.onChildChanged(ref, (snap) => h.added && h.added(snap.key, snap.val())),
+        rtdb.onChildRemoved(ref, (snap) => h.removed && h.removed(snap.key)),
+      ];
+      return () => offs.forEach((off) => off());
+    },
     // Atomically take the value at path for uid if it is empty (or already ours).
     async claim(path, uid) {
       const res = await rtdb.runTransaction(R(path), (cur) =>

@@ -79,15 +79,37 @@
       </div>
     </section>
 
-    <!-- Main view: placeholder until M3 adds the slide controls -->
+    <!-- Main view: the current slide, the next one, Prev / Next, and the page grid -->
     <section id="mainScreen" class="screen" hidden>
-      <div class="card">
-        <h2 class="display"><span class="tilt grad-text">Connected</span></h2>
-        <p>You're in control of the laptop. Slide controls arrive in the next update.</p>
+      <div class="thumb-box now-box">
+        <span class="ph" aria-hidden="true">Loading…</span>
+        <img id="nowImg" alt="Current slide" hidden>
+      </div>
+      <p id="pageLabel" class="page-label">Waiting for slides…</p>
+      <div class="next-row">
+        <div class="thumb-box next-box">
+          <span id="nextPh" class="ph" aria-hidden="true">Loading…</span>
+          <img id="nextImg" alt="Next slide" hidden>
+        </div>
+        <span class="next-tag">Next up</span>
       </div>
       <div class="bottom">
+        <div class="nav">
+          <button id="prevBtn" class="btn nav-btn" type="button" disabled>Prev</button>
+          <button id="nextBtn" class="btn nav-btn" type="button">Next</button>
+        </div>
+        <button id="gridBtn" type="button" class="btn quiet">All pages</button>
         <button id="disconnectBtn" type="button" class="btn quiet">Disconnect</button>
       </div>
+    </section>
+
+    <!-- Page grid: tap a slide to jump to it; the current one is outlined -->
+    <section id="gridScreen" class="screen" hidden>
+      <div class="grid-head">
+        <h2 class="display"><span class="tilt grad-text">Pick a slide</span></h2>
+        <button id="gridBackBtn" type="button" class="btn quiet">Back</button>
+      </div>
+      <div id="grid" class="grid"></div>
     </section>
   </main>
 </body>

@@ -64,3 +64,24 @@ export function renderPage(pdf, num, boxW, boxH) {
 export function freeCanvas(canvas) {
   if (canvas) canvas.width = canvas.height = 0;
 }
+
+// Small JPEG preview of one page for the phone: `width` CSS px wide (about 15 KB at 320 px),
+// returned as a data URL. The page is painted on white first, since JPEG has no transparency.
+export async function renderThumb(pdf, num, width, quality) {
+  const page = await pdf.getPage(num);
+  const base = page.getViewport({ scale: 1 });
+  const viewport = page.getViewport({ scale: width / base.width });
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.floor(viewport.width);
+  canvas.height = Math.floor(viewport.height);
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  try {
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    return canvas.toDataURL('image/jpeg', quality);
+  } finally {
+    page.cleanup();                 // free PDF.js's per-page data right away
+    canvas.width = canvas.height = 0; // and the canvas pixels
+  }
+}

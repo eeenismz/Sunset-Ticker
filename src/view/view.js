@@ -1,5 +1,6 @@
 // Laptop viewer: shows the PDF full screen, reacts to the keyboard / Bluetooth clickers,
-// and (M2) opens a room that one phone can pair with.
+// and (M2) opens a room that one phone can pair with, then (M3) applies the phone's
+// commands and sends it the slide state and thumbnails.
 import { connectRelay, useFake } from '../shared/db.js?v=__V__';
 import { newCode, prettyCode, startHeartbeat, watchPeer, setDot, IDLE_MS } from '../shared/room.js?v=__V__';
 
@@ -80,7 +81,10 @@ fileEl.addEventListener('change', async () => {
   }
   try {
     if (!room) await withTimeout(createRoom(r), 8000);
-    else relay.set(`rooms/${room}/meta/pageCount`, pdf.numPages).catch(() => {});
+    else {
+      relay.set(`rooms/${room}/meta/pageCount`, pdf.numPages).catch(() => {});
+      startThumbs(); // a new PDF: the phone gets fresh thumbnails
+    }
     // Already paired (a new PDF picked mid-service): straight back to the slides.
     if (remoteUid) showStage();
     else showPairing();
@@ -173,6 +177,9 @@ async function doCreateRoom(r) {
   renderQr();
   stopHeartbeat = startHeartbeat(relay, `rooms/${room}/hb/laptop`);
   stopMeta = relay.on(`rooms/${room}/meta`, onMeta);
+  listenCommands();   // taps from the phone
+  publishState(true); // so a phone that joins sees the current page
+  startThumbs();      // previews for the phone's grid
   setDot(dotEl, 'grey');
 }
 
@@ -236,8 +243,10 @@ async function releasePhone() {
 
 // Stop all room activity locally (the room was deleted, or we're ending it).
 function leaveRoom() {
-  stopHeartbeat(); stopPeer(); stopMeta();
-  stopHeartbeat = stopPeer = stopMeta = () => {};
+  stopHeartbeat(); stopPeer(); stopMeta(); stopCmds();
+  stopHeartbeat = stopPeer = stopMeta = stopCmds = () => {};
+  thumbRun++;         // stops a thumbnail loop still running
+  published = null;
   room = null;
   remoteUid = null;
   remoteName = '';
@@ -317,6 +326,77 @@ setInterval(() => {
   }
 }, 60 * 1000);
 
+// ---------- Phone link: state, commands and thumbnails (M3) ----------
+// The laptop alone writes rooms/<code>/state, so it stays the source of truth.
+let published = null; // last state written, to skip repeat writes
+function publishState(force) {
+  if (!room || !relay) return;
+  const s = { page, black };
+  if (!force && published && published.page === s.page && published.black === s.black) return;
+  published = s;
+  relay.update(`rooms/${room}/state`, s).catch(() => {});
+}
+
+// The phone pushes {type, page?, at} into rooms/<code>/cmds. Each one is applied in arrival
+// order and then removed, so a fast run of taps is never lost and nothing is replayed later.
+let stopCmds = () => {};
+function listenCommands() {
+  stopCmds();
+  stopCmds = relay.children(`rooms/${room}/cmds`, {
+    added: (key, cmd) => {
+      relay.remove(`rooms/${room}/cmds/${key}`).catch(() => {});
+      applyCommand(cmd);
+    },
+  });
+}
+
+function applyCommand(cmd) {
+  if (!pdf || !cmd) return;
+  activity(); // a phone tap is presenter activity, so the 2 h idle end doesn't fire mid-service
+  // Like a slide key: a tap on the phone starts presenting from the current slide.
+  if (onStartScreen() || !$('moment').hidden) showStage();
+  if (cmd.type === 'next') goTo(page + 1);
+  else if (cmd.type === 'prev') goTo(page - 1);
+  else if (cmd.type === 'goto' && Number.isInteger(cmd.page)) goTo(cmd.page);
+  else if (cmd.type === 'black') toggleBlack();
+}
+
+// Thumbnails for the phone: each page is rendered at 320 px (JPEG, quality 0.75) and written to
+// rooms/<code>/thumbs/<n>. Pages near the current one go first. One page at a time with a short
+// pause between pages, so a slide flip never waits behind a thumbnail.
+let thumbRun = 0; // bumped to stop an older loop when a new one starts or the room closes
+const THUMB_MAX_CHARS = 40000; // size cap per thumbnail (database.rules.json has the same cap)
+async function startThumbs() {
+  const run = ++thumbRun;
+  const code = room;
+  const doc = pdf;
+  try { await relay.remove(`rooms/${code}/thumbs`); } catch (err) { /* nothing to clear */ }
+  for (const n of pageOrder(doc.numPages, page)) {
+    if (run !== thumbRun || room !== code) return;
+    try {
+      let url = await engine.renderThumb(doc, n, 320, 0.75);
+      if (url.length > THUMB_MAX_CHARS) url = await engine.renderThumb(doc, n, 320, 0.45); // a busy page: smaller JPEG
+      if (run !== thumbRun || room !== code) return; // checked right before the write
+      if (url.length <= THUMB_MAX_CHARS) relay.set(`rooms/${code}/thumbs/${n}`, url).catch(() => {});
+    } catch (err) {
+      console.warn('Thumbnail ' + n + ' failed', err);
+    }
+    await new Promise((r) => setTimeout(r, 20)); // let slide flips and taps run first
+  }
+}
+
+// Page numbers from `from` outward (from, from+1, from-1, from+2, ...), each one once.
+function pageOrder(total, from) {
+  const seen = new Set();
+  const out = [];
+  for (let d = 0; out.length < total; d++) {
+    for (const n of [from + d, from - d]) {
+      if (n >= 1 && n <= total && !seen.has(n)) { seen.add(n); out.push(n); }
+    }
+  }
+  return out;
+}
+
 // ---------- Render cache ----------
 function getJob(n) {
   if (!cache.has(n)) {
@@ -351,6 +431,7 @@ function goTo(n, prefetch = true) {
   if (!pdf) return;
   n = Math.max(1, Math.min(pdf.numPages, n));
   page = n;
+  publishState();
   const myGen = gen;
 
   // Keep the old slide on screen until the new one is ready (no blank flash),
@@ -392,6 +473,7 @@ window.addEventListener('resize', () => {
 function toggleBlack() {
   black = !black;
   blackEl.classList.toggle('on', black);
+  publishState();
 }
 
 // ---------- Full screen ----------
