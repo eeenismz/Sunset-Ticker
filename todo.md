@@ -3,6 +3,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] Autopilot review (M3–M5): stale phone taps (>10 s) dropped after reconnect, cmds `at <= now` in rules, phone timer tick only while paired; pushed (2026-11-24)
 - [x] M5 code: manifest + icons, versioned service worker (/remote/ only), gesture lock, phone wake lock, auto-resume on return, "That's a wrap" screen; QA 53/53 + M4 35/35 + M3 19/19 locally (2026-11-24)
 - [x] M4 code: laser pointer (150 ms hold, ~15/s), black screen on/off from phone synced with B, count-up timer with confirm reset; QA 35/35 + M3 19/19 locally (2026-11-24)
 - [x] M3 code: rules for state/cmds/thumbs/timer/laser, command queue, thumbnails (wide60 = 220 KB), phone main view + swipe + grid; QA 19/19 locally (2026-11-24)
@@ -76,6 +77,10 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Neon status dot, "Showtime" / "That's a wrap" moments (phone only)
 - [x] App icon: sun setting behind a single slide (PWA icon sizes with M5)
 - Done check: projector slides untouched; no third-party logos or artwork; looks right on iPhone and laptop
+
+### Later (from review, not urgent)
+- [ ] Rules: require `roomIndex/$code` when a room is created, so rooms made outside the app still get cleaned (needs write order check with real Firebase)
+- [ ] If flips feel slow at rehearsal on big decks: pause thumbnail rendering while a key is held
 
 ## Open questions
 - [x] Black screen: pure black, smooth fade (2026-11-23)
