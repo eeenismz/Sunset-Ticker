@@ -81,11 +81,25 @@
 
     <!-- Main view: the current slide, the next one, Prev / Next, and the page grid -->
     <section id="mainScreen" class="screen" hidden>
-      <div class="thumb-box now-box">
+      <div id="nowBox" class="thumb-box now-box">
         <span class="ph" aria-hidden="true">Loading…</span>
         <img id="nowImg" alt="Current slide" hidden>
+        <!-- Laser (M4): where the finger is while it draws on the slide -->
+        <div id="laserDot" aria-hidden="true"></div>
       </div>
       <p id="pageLabel" class="page-label">Waiting for slides…</p>
+      <!-- Timer (M4): counts up from the laptop's first Next; reset asks first -->
+      <div class="timer-row">
+        <p id="timer" class="timer">0:00</p>
+        <button id="resetBtn" type="button" class="btn quiet">Reset timer</button>
+      </div>
+      <div id="resetConfirm" class="reset-confirm" hidden>
+        <span>Reset the timer to 0:00?</span>
+        <div class="reset-btns">
+          <button id="resetYes" type="button" class="btn sm">Reset</button>
+          <button id="resetNo" type="button" class="btn quiet">Keep</button>
+        </div>
+      </div>
       <div class="next-row">
         <div class="thumb-box next-box">
           <span id="nextPh" class="ph" aria-hidden="true">Loading…</span>
@@ -98,7 +112,10 @@
           <button id="prevBtn" class="btn nav-btn" type="button" disabled>Prev</button>
           <button id="nextBtn" class="btn nav-btn" type="button">Next</button>
         </div>
-        <button id="gridBtn" type="button" class="btn quiet">All pages</button>
+        <div class="tools">
+          <button id="blackBtn" type="button" class="btn quiet" aria-pressed="false">Black screen: off</button>
+          <button id="gridBtn" type="button" class="btn quiet">All pages</button>
+        </div>
         <button id="disconnectBtn" type="button" class="btn quiet">Disconnect</button>
       </div>
     </section>

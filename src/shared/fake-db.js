@@ -136,6 +136,12 @@ export async function claim(path, who) {
   return { ok: true, current: who };
 }
 
+// Same clock as this device, so the offset is always 0 (cb is called once, like Firebase's value event).
+export function serverOffset(cb) {
+  setTimeout(() => cb(0), 0);
+  return () => {};
+}
+
 export function connected(cb) {
   connListeners.add(cb);
   setTimeout(() => cb(!offline), 0);

@@ -422,6 +422,19 @@ kbd {
 }
 #slide canvas { display: block; }
 
+/* Laser pointer (M4): glowing red dot, centred on its point (left/top set from JS) */
+#laser {
+  position: fixed;
+  z-index: 5;            /* over the slide, under #black (a black screen hides it) */
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffd6dc 0 18%, var(--st-red) 20% 55%, rgba(255, 59, 78, 0) 70%);
+  box-shadow: 0 0 8px var(--st-red), 0 0 22px rgba(255, 59, 78, .8), 0 0 44px rgba(255, 59, 78, .45);
+  pointer-events: none;
+}
+
 /* Hint pill, bottom centre (mockup 2a) */
 #hint {
   position: fixed;

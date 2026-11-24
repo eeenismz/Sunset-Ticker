@@ -13,6 +13,7 @@ const hintEl = $('hint');
 const msgEl = $('msg');
 const fileEl = $('file');
 const dotEl = $('dot');
+const laserEl = $('laser');
 
 // ---------- PDF engine and relay, both loaded right away ----------
 // The PDF engine comes from the CDN. Load it dynamically so that if the internet
@@ -178,6 +179,7 @@ async function doCreateRoom(r) {
   stopHeartbeat = startHeartbeat(relay, `rooms/${room}/hb/laptop`);
   stopMeta = relay.on(`rooms/${room}/meta`, onMeta);
   listenCommands();   // taps from the phone
+  listenLaser();      // the phone's laser pointer
   publishState(true); // so a phone that joins sees the current page
   startThumbs();      // previews for the phone's grid
   setDot(dotEl, 'grey');
@@ -205,7 +207,10 @@ function onMeta(meta) {
 function phonePaired() {
   activity();
   stopPeer();
-  stopPeer = watchPeer(relay, `rooms/${room}/hb/remote`, (color) => setDot(dotEl, color));
+  stopPeer = watchPeer(relay, `rooms/${room}/hb/remote`, (color) => {
+    setDot(dotEl, color);
+    if (color === 'red') hideLaser(); // phone went quiet: don't leave a dot stuck on screen
+  });
   updatePairStatus();
   if (onStartScreen()) showMoment();
 }
@@ -213,6 +218,7 @@ function phonePaired() {
 function phoneLeft() {
   stopPeer();
   stopPeer = () => {};
+  hideLaser();
   setDot(dotEl, 'grey');
   updatePairStatus();
 }
@@ -243,10 +249,12 @@ async function releasePhone() {
 
 // Stop all room activity locally (the room was deleted, or we're ending it).
 function leaveRoom() {
-  stopHeartbeat(); stopPeer(); stopMeta(); stopCmds();
-  stopHeartbeat = stopPeer = stopMeta = stopCmds = () => {};
+  stopHeartbeat(); stopPeer(); stopMeta(); stopCmds(); stopLaser();
+  stopHeartbeat = stopPeer = stopMeta = stopCmds = stopLaser = () => {};
   thumbRun++;         // stops a thumbnail loop still running
   published = null;
+  timerArmed = false;
+  hideLaser();
   room = null;
   remoteUid = null;
   remoteName = '';
@@ -355,10 +363,59 @@ function applyCommand(cmd) {
   activity(); // a phone tap is presenter activity, so the 2 h idle end doesn't fire mid-service
   // Like a slide key: a tap on the phone starts presenting from the current slide.
   if (onStartScreen() || !$('moment').hidden) showStage();
-  if (cmd.type === 'next') goTo(page + 1);
+  if (cmd.type === 'next') nextSlide(true);
   else if (cmd.type === 'prev') goTo(page - 1);
   else if (cmd.type === 'goto' && Number.isInteger(cmd.page)) goTo(cmd.page);
-  else if (cmd.type === 'black') toggleBlack();
+  // The phone sends the wanted value (on: true/false), so a repeated tap can't toggle back by mistake.
+  else if (cmd.type === 'black') { if (typeof cmd.on !== 'boolean' || cmd.on !== black) toggleBlack(); }
+  else if (cmd.type === 'resetTimer') resetTimer();
+}
+
+// ---------- Timer (M4) ----------
+// Counts up from the first forward flip (Next key or phone Next). The start time is kept in the room
+// as timer/startAt (server time), so a phone reload keeps it. Grid jumps and Home/End don't start it.
+let timerArmed = false; // true once startAt has been written in this room (cleared by reset and by leaving)
+function startTimer() {
+  if (timerArmed || !room || !relay) return;
+  timerArmed = true;
+  relay.set(`rooms/${room}/timer/startAt`, relay.TS).catch(() => { timerArmed = false; });
+}
+function resetTimer() {
+  timerArmed = false; // the next forward flip starts it again
+  if (room && relay) relay.set(`rooms/${room}/timer/startAt`, null).catch(() => {});
+}
+
+// One forward slide, and start the timer on the first one.
+function nextSlide(prefetch) {
+  if (!pdf || page >= pdf.numPages) return;
+  startTimer();
+  goTo(page + 1, prefetch);
+}
+
+// ---------- Laser pointer (M4) ----------
+// While a finger is held on the phone's slide, the phone writes {x, y} (0..1 of the slide image) to
+// rooms/<code>/laser. Here the red dot is drawn over the slide canvas, which is already letterboxed.
+// Only the phone can clear its laser node, so the dot is also hidden when no phone is paired.
+let stopLaser = () => {};
+function listenLaser() {
+  stopLaser();
+  stopLaser = relay.on(`rooms/${room}/laser`, (p) => {
+    if (!p || !remoteUid) hideLaser();
+    else showLaserAt(p);
+  });
+}
+
+function showLaserAt(p) {
+  const canvas = slideEl.querySelector('canvas');
+  if (!canvas || stageEl.hidden || !Number.isFinite(p.x) || !Number.isFinite(p.y)) { hideLaser(); return; }
+  const r = canvas.getBoundingClientRect(); // the slide as it is on screen (letterbox included)
+  laserEl.style.left = (r.left + p.x * r.width) + 'px';
+  laserEl.style.top = (r.top + p.y * r.height) + 'px';
+  laserEl.hidden = false;
+}
+
+function hideLaser() {
+  laserEl.hidden = true;
 }
 
 // Thumbnails for the phone: each page is rendered at 320 px (JPEG, quality 0.75) and written to
@@ -516,7 +573,7 @@ document.addEventListener('keydown', (e) => {
 
   let handled = true;
   if (k === ' ' && e.shiftKey) goTo(page - 1, prefetch);
-  else if (NEXT_KEYS.includes(k)) goTo(page + 1, prefetch);
+  else if (NEXT_KEYS.includes(k)) nextSlide(prefetch);
   else if (PREV_KEYS.includes(k)) goTo(page - 1, prefetch);
   else if (k === 'Home') goTo(1);
   else if (k === 'End') goTo(pdf.numPages);

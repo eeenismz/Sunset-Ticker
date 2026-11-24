@@ -3,6 +3,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] M4 code: laser pointer (150 ms hold, ~15/s), black screen on/off from phone synced with B, count-up timer with confirm reset; QA 35/35 + M3 19/19 locally (2026-11-24)
 - [x] M3 code: rules for state/cmds/thumbs/timer/laser, command queue, thumbnails (wide60 = 220 KB), phone main view + swipe + grid; QA 19/19 locally (2026-11-24)
 - [x] M2 code: rooms, QR pairing, one-phone lock, R release, heartbeats + status dots, idle/stale cleanup, phone join/Showtime/Disconnect; QA 10/10 locally, review fixes applied (2026-11-23)
 - [x] Full screen hint shows whenever the slide isn't full screen, also after Esc, and lists the slide keys (→ ← PgUp PgDn Space, B) (2026-11-23)
@@ -49,11 +50,12 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Thumbnail grid, current page highlighted, tap to jump
 - Done check: 5 fast taps = 5 pages (none lost); keyboard flips on laptop update the phone; 60-page PDF ≈ 1 MB of thumbnails
 
-### M4 — Laser pointer, black screen, timer
-- [ ] Hold-and-drag on the current page preview → red dot on the laptop (throttled ~15/s, normalized 0–1 coords)
-- [ ] Black screen toggle on phone, synced with the B key
-- [ ] Timer counts up, starts on the first Next (phone or keyboard); start time kept in the room so a phone reload keeps it
-- [ ] Reset timer button on the phone, with a confirm step
+### M4 — Laser pointer, black screen, timer (code done 2026-11-24; rules need re-paste by Ee)
+- [x] Hold-and-drag on the current page preview → red dot on the laptop (throttled ~15/s, normalized 0–1 coords)
+- [x] Black screen toggle on phone, synced with the B key
+- [x] Timer counts up, starts on the first Next (phone or keyboard); start time kept in the room so a phone reload keeps it
+- [x] Reset timer button on the phone, with a confirm step
+- [ ] BLOCKED (Ee): re-paste database.rules.json in the console (adds cmd types resetTimer, cmd field on)
 - Done check: dot follows the finger with acceptable lag over mobile data and disappears on release; black screen works from both sides and stays in sync
 
 ### M5 — PWA install, gesture lock, wake lock, auto-resume

@@ -45,8 +45,9 @@
           "$id": {
             ".write": "auth != null && !data.exists() && newData.exists() && root.child('rooms/' + $code + '/meta/remote').val() === auth.uid",
             ".validate": "newData.hasChildren(['type', 'at'])",
-            "type": { ".validate": "newData.val() === 'next' || newData.val() === 'prev' || newData.val() === 'goto' || newData.val() === 'black'" },
+            "type": { ".validate": "newData.val() === 'next' || newData.val() === 'prev' || newData.val() === 'goto' || newData.val() === 'black' || newData.val() === 'resetTimer'" },
             "page": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 1000" },
+            "on": { ".validate": "newData.isBoolean()" },
             "at": { ".validate": "newData.isNumber()" },
             "$other": { ".validate": false }
           }

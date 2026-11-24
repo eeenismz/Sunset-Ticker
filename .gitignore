@@ -6,3 +6,4 @@
 .DS_Store
 /marketing/raw
 tests/out-*.json
+tests/*.png

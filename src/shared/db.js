@@ -1,7 +1,7 @@
 // The relay between laptop and phone: Firebase Realtime Database, or (for local
 // testing with ?fakedb in the URL) a stand-in that only works between tabs of one browser.
 // Both offer the same small path-based API, so the rest of the app never touches Firebase directly:
-//   uid, TS (server time marker), get, set, update, remove, push, on, children, claim, connected, staleKeys
+//   uid, TS (server time marker), get, set, update, remove, push, on, children, claim, connected, staleKeys, serverOffset
 import { firebaseConfig } from './firebase-config.js?v=__V__';
 
 const FB = 'https://www.gstatic.com/firebasejs/11.0.2/';
@@ -63,6 +63,8 @@ export async function connectRelay() {
         cur === null || cur === uid ? uid : undefined); // undefined = give up
       return { ok: res.committed, current: res.snapshot.val() };
     },
+    // cb(ms) with the difference between server time and this device's clock (server - local).
+    serverOffset: (cb) => rtdb.onValue(R('.info/serverTimeOffset'), (snap) => cb(snap.val() || 0)),
     // cb(true/false) whenever this device's own link to Firebase goes up or down.
     connected: (cb) => rtdb.onValue(R('.info/connected'), (snap) => cb(snap.val() === true)),
     // Keys under path whose value (a timestamp) is at or before cutoff.
