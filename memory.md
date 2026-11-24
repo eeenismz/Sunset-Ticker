@@ -28,6 +28,8 @@
 - 2026-11-24 The laser pointer starts after a 150 ms press-and-hold on the slide. Moving more than 8 px before that counts as a swipe. Only Next starts the timer, not grid jumps or Home/End.
 - 2026-11-24 Pinch zoom is blocked on the phone remote, which hurts accessibility (WCAG 1.4.4). This is open for Ee to review.
 - 2026-11-24 "That's a wrap" shows only when the laptop deletes the room. It doesn't show on the phone's Disconnect or the R release.
+- 2026-11-24 The repo is public, so the filled-in `src/shared/firebase-config.js` is gitignored; `firebase-config.example.js` is the committed template and `build.sh` copies it in when the real file is missing (Ee's choice over committing a restricted key).
+- 2026-11-24 The stale-room query uses an exact cutoff: Firebase time minus 2 h, rounded down to the minute, minus 2 min. The rules accept only cutoffs 1-3 minutes past the 2 h mark, which still keeps fresh room codes unlistable.
 
 ## Rejected Approaches
 - 2026-11-23 Firebase Hosting (spec's choice): dropped for the droplet, see Decisions.
@@ -53,3 +55,6 @@
 - 2026-11-24 The owner's room-level `.write` covers every path inside the room, so the laptop *can* delete `laser`. A builder assumed it couldn't.
 - 2026-11-24 Rooms created without a `roomIndex` entry are never cleaned up by the lazy 2 h cleanup (parked in todo.md under "Later").
 - 2026-11-24 `sw.js` and the manifest have fixed URLs, and Cloudflare caches .js for 4 h, so they need `no-cache` at nginx or phones pick up new versions late.
+- 2026-11-24 Realtime Database rules: `query.endAt` (likely all query bounds) only works with `==`; `<`, `<=` against it are always false, even against a constant, so `query.endAt <= now - 7200000` never passed. Found with throwaway `diag/` rule nodes, one clause each.
+- 2026-11-24 Firebase JS SDK v11 rejects `ref(db, '')` ("invalid path"); use `ref(db)` for root multi-path updates. The `?fakedb` stand-in accepted '', so room creation only failed against real Firebase. Always run one real-Firebase pass after fake-db tests.
+- 2026-11-24 Testing with real Firebase needs separate Chrome profiles for laptop and phone: frames of one browser share one anonymous uid, so the rules can't tell them apart.

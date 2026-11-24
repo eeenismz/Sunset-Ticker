@@ -26,7 +26,8 @@ export async function connectRelay() {
   // the laptop (room owner) from the paired phone. Firebase remembers it on the device.
   const cred = await auth.signInAnonymously(auth.getAuth(fbApp));
   const db = rtdb.getDatabase(fbApp);
-  const R = (path) => rtdb.ref(db, path);
+  // '' means the database root (multi-path updates); Firebase rejects ref(db, '').
+  const R = (path) => (path ? rtdb.ref(db, path) : rtdb.ref(db));
 
   return {
     uid: cred.user.uid,

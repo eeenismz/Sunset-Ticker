@@ -1,4 +1,5 @@
-// Firebase web app settings. Fill these in from the Firebase console:
+// Template for src/shared/firebase-config.js, which holds the real values and is kept out of git
+// (public repo). Copy this file to firebase-config.js and fill it in from the Firebase console:
 // Project settings → General → Your apps → Web app → "SDK setup and configuration" → Config.
 // They are not secret (every visitor's browser receives them); the data is protected
 // by database.rules.json. While apiKey is empty, the laptop works keyboard-only.

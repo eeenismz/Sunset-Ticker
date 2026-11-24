@@ -2,7 +2,7 @@
   "rules": {
     "roomIndex": {
       ".indexOn": ".value",
-      ".read": "auth != null && query.orderByValue == true && query.endAt != null && query.endAt <= now - 7200000",
+      ".read": "auth != null && query.orderByValue == true && (query.endAt == (now - 7200000) - ((now - 7200000) % 60000) - 60000 || query.endAt == (now - 7200000) - ((now - 7200000) % 60000) - 120000 || query.endAt == (now - 7200000) - ((now - 7200000) % 60000) - 180000)",
       "$code": {
         ".write": "auth != null && ((newData.exists() && newData.parent().parent().child('rooms/' + $code + '/meta/owner').val() === auth.uid) || (!newData.exists() && (data.val() < now - 7200000 || root.child('rooms/' + $code + '/meta/owner').val() === auth.uid)))",
         ".validate": "newData.isNumber() && newData.val() <= now"

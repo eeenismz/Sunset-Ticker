@@ -3,6 +3,8 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] Real-Firebase test pass: rules 42/42 (REST, 3 users), end-to-end laptop + 2 phones in separate profiles 20/20; fixed roomIndex query rule (endAt only matches exactly) and root multi-path updates in db.js; Firebase config kept out of git (2026-11-24)
+- [x] Firebase project `sunset-ticker` (RTDB Singapore, Anonymous Auth, estains-tech.com authorized), config filled, rules pasted (2026-11-24)
 - [x] Autopilot review (M3–M5): stale phone taps (>10 s) dropped after reconnect, cmds `at <= now` in rules, phone timer tick only while paired; pushed (2026-11-24)
 - [x] M5 code: manifest + icons, versioned service worker (/remote/ only), gesture lock, phone wake lock, auto-resume on return, "That's a wrap" screen; QA 53/53 + M4 35/35 + M3 19/19 locally (2026-11-24)
 - [x] M4 code: laser pointer (150 ms hold, ~15/s), black screen on/off from phone synced with B, count-up timer with confirm reset; QA 35/35 + M3 19/19 locally (2026-11-24)
@@ -14,7 +16,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Read v1 spec, list risks and open questions, propose structure, data shape and milestones (2026-11-23)
 
 ## In Progress
-- [ ] M2 — code done and tested locally; waiting for Ee: Firebase project, rules, deploy
+- [ ] M2 — Firebase live and tested; waiting on the first HTTPS deploy
 
 ## Pending
 
@@ -29,9 +31,9 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - Done check: 60-page PDF opens, flips with keyboard and a Bluetooth clicker, B toggles black, cursor hidden, no UI visible, 4:3 and 16:9 window both letterbox correctly
 
 ### M2 — Room, pairing, status dot on both sides (code done 2026-11-23; real-Firebase test + deploy waiting on Ee)
-- [ ] BLOCKED (Ee): Firebase project (Realtime Database in Singapore + Anonymous Auth), fill `src/shared/firebase-config.js`, add estains-tech.com to Auth authorized domains
+- [x] Firebase project (Realtime Database in Singapore + Anonymous Auth), `src/shared/firebase-config.js` filled (gitignored), estains-tech.com in Auth authorized domains (2026-11-24)
 - [x] `database.rules.json` (room lock to first phone, size limits, stale-room delete) — written and reviewed, not yet pasted into the console
-- [ ] BLOCKED (Ee): paste rules in the console, then one real-Firebase test pass (claim on a held room, stale delete by a 2nd laptop, roomIndex query, pairing)
+- [x] Rules pasted in the console + real-Firebase test pass (claim on a held room, stale delete by a 2nd laptop, roomIndex query, pairing) (2026-11-24)
 - [x] Laptop: create 6-digit room, show QR + code, hide them when the phone pairs ("Connected" moment ~2 s, "Start without phone", slide keys skip pairing)
 - [x] Phone `/remote`: join by QR link or typed 6-digit code; room locks to that phone (one device at a time); rejoins after reload
 - [x] Show which device is connected; a second phone sees "In use by <device>" and is refused
@@ -44,7 +46,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 
 ### M3 — Next / prev / goto + thumbnail grid (code done 2026-11-24; rules need re-paste by Ee)
 - [x] Extend database.rules.json for state / cmds / thumbs / timer / laser (`$other` blocks new paths)
-- [ ] BLOCKED (Ee): re-paste database.rules.json in the console
+- [x] Re-paste database.rules.json in the console (2026-11-24)
 - [x] Phone commands must count as laptop activity (else the 2 h idle end kills a live session)
 - [x] Laptop renders ~15 KB JPEG thumbnails and pushes them progressively
 - [x] Command queue (phone pushes, laptop applies in order and removes); laptop owns `state.page`
@@ -57,7 +59,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Black screen toggle on phone, synced with the B key
 - [x] Timer counts up, starts on the first Next (phone or keyboard); start time kept in the room so a phone reload keeps it
 - [x] Reset timer button on the phone, with a confirm step
-- [ ] BLOCKED (Ee): re-paste database.rules.json in the console (adds cmd types resetTimer, cmd field on)
+- [x] Re-paste database.rules.json in the console (adds cmd types resetTimer, cmd field on) (2026-11-24)
 - Done check: dot follows the finger with acceptable lag over mobile data and disappears on release; black screen works from both sides and stays in sync
 
 ### M5 — PWA install, gesture lock, wake lock, auto-resume (code done 2026-11-24; iPhone checks need the HTTPS deploy)
@@ -79,6 +81,8 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - Done check: projector slides untouched; no third-party logos or artwork; looks right on iPhone and laptop
 
 ### Later (from review, not urgent)
+- [ ] Phone: a code typed before Firebase finishes connecting shows "Can't reach the connection service"; wait for the connection instead (QR links already wait)
+- [ ] Optional: restrict the Firebase browser API key to estains-tech.com + localhost:8888 (Google Cloud → Credentials)
 - [ ] Rules: require `roomIndex/$code` when a room is created, so rooms made outside the app still get cleaned (needs write order check with real Firebase)
 - [ ] If flips feel slow at rehearsal on big decks: pause thumbnail rendering while a key is held
 
@@ -94,4 +98,4 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Laptop shows "Connected: <device>" ~2 s on the start screen, then slides only; second phone sees "In use by <device>" (2026-11-23)
 - [x] Switch phones: "Disconnect" on the phone + R key on the laptop (2026-11-23)
 - [x] Timer reset: back to 0:00, waits for the next Next (2026-11-23)
-- [ ] Firebase project: new one (region Singapore) created by Ee in the console (needed for M2)
+- [x] Firebase project: new one (region Singapore) created by Ee in the console (2026-11-24)

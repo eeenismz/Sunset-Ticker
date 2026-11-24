@@ -20,7 +20,7 @@ Full spec: `Sunset Ticker v1 Spec.md`. Tasks: `todo.md`.
 
 ### Firebase (one-time)
 1. Create a project with a Realtime Database (Singapore) and Anonymous sign-in turned on.
-2. Fill in `src/shared/firebase-config.js` from the web app config (not secret), then run `./build.sh`.
+2. Copy `src/shared/firebase-config.example.js` to `src/shared/firebase-config.js` and fill it in from the web app config, then run `./build.sh`. The filled-in file is kept out of git (public repo); `build.sh` creates an empty one if it's missing.
 3. Paste `database.rules.json` into Realtime Database → Rules. Re-paste it whenever it changes.
 4. Add `estains-tech.com` to Authentication → Authorized domains.
 

@@ -311,8 +311,11 @@ async function renderQr() {
 // (no server needed). Failures are ignored; the next session tries again.
 async function cleanupStaleRooms() {
   try {
-    // 5 minutes of margin, in case this laptop's clock runs ahead of Firebase's.
-    const keys = await relay.staleKeys('roomIndex', Date.now() - IDLE_MS - 5 * 60 * 1000);
+    // The live rules only accept an exact cutoff (a `<=` on query.endAt never passes), so the
+    // cutoff is Firebase time minus 2 h, rounded down to the minute, minus 2 minutes. The rules
+    // allow 1-3 minutes back, which leaves about a minute either way for clock drift.
+    const t = Date.now() + serverOffsetMs - IDLE_MS;
+    const keys = await relay.staleKeys('roomIndex', t - (t % 60000) - 2 * 60 * 1000);
     for (const k of keys.slice(0, 20)) {
       relay.update('', { [`rooms/${k}`]: null, [`roomIndex/${k}`]: null }).catch(() => {});
     }

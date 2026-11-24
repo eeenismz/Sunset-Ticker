@@ -7,3 +7,4 @@
 /marketing/raw
 tests/out-*.json
 tests/*.png
+/src/shared/firebase-config.js
