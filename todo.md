@@ -3,6 +3,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] Redeploy + cache headers: live build v=20261124161732, sw.js `no-cache` + Cloudflare DYNAMIC, manifest application/manifest+json + no-cache, other apps on the domain still 200 (2026-11-24)
 - [x] iPhone layout fix (WebKit): grid cells and Next-up preview sized by padding instead of aspect-ratio, main view rows don't shrink, current slide fills the leftover height; M3 20/20, M4 35/35, M5 53/53, no page scroll at 390x700 / 390x844 / 430x760 (2026-11-24)
 - [x] Real-Firebase test pass: rules 42/42 (REST, 3 users), end-to-end laptop + 2 phones in separate profiles 20/20; fixed roomIndex query rule (endAt only matches exactly) and root multi-path updates in db.js; Firebase config kept out of git (2026-11-24)
 - [x] Firebase project `sunset-ticker` (RTDB Singapore, Anonymous Auth, estains-tech.com authorized), config filled, rules pasted (2026-11-24)
@@ -17,7 +18,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Read v1 spec, list risks and open questions, propose structure, data shape and milestones (2026-11-23)
 
 ## In Progress
-- [ ] M2 — deployed; layout fix built (needs re-upload); waiting on nginx headers (Ee) and the real iPhone pass
+- [ ] M2 + M5 — deployed with layout fix (v=20261124161732) and cache headers; waiting on the real iPhone pass
 
 ## Pending
 
@@ -71,7 +72,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - Done check: installed PWA on iPhone survives app switch, lock/unlock and being killed, rejoining without a rescan; screen stays on for 10+ min; no gesture zooms or bounces
 
 - [ ] BLOCKED (Ee): real iPhone pass after deploy (install, wake lock 10+ min, app kill → rejoin, pinch/bounce)
-- [ ] Deploy note: nginx `Cache-Control: no-cache` for remote/sw.js + manifest.webmanifest, serve .webmanifest as application/manifest+json
+- [x] Deploy: nginx `no-cache` for remote/sw.js + manifest.webmanifest, manifest served as application/manifest+json, Cloudflare Cache Rule bypasses sw.js; checked with curl (2026-11-24)
 
 ### Theme — Neon sunset (original art only), moved before M2 on 2026-11-23
 - [x] Theme tokens, self-hosted display font, split-panel start screen with original sunset art (SVG/CSS)
