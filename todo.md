@@ -3,6 +3,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] iPhone layout fix (WebKit): grid cells and Next-up preview sized by padding instead of aspect-ratio, main view rows don't shrink, current slide fills the leftover height; M3 20/20, M4 35/35, M5 53/53, no page scroll at 390x700 / 390x844 / 430x760 (2026-11-24)
 - [x] Real-Firebase test pass: rules 42/42 (REST, 3 users), end-to-end laptop + 2 phones in separate profiles 20/20; fixed roomIndex query rule (endAt only matches exactly) and root multi-path updates in db.js; Firebase config kept out of git (2026-11-24)
 - [x] Firebase project `sunset-ticker` (RTDB Singapore, Anonymous Auth, estains-tech.com authorized), config filled, rules pasted (2026-11-24)
 - [x] Autopilot review (M3–M5): stale phone taps (>10 s) dropped after reconnect, cmds `at <= now` in rules, phone timer tick only while paired; pushed (2026-11-24)
@@ -16,7 +17,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Read v1 spec, list risks and open questions, propose structure, data shape and milestones (2026-11-23)
 
 ## In Progress
-- [ ] M2 — Firebase live and tested; waiting on the first HTTPS deploy
+- [ ] M2 — deployed; layout fix built (needs re-upload); waiting on nginx headers (Ee) and the real iPhone pass
 
 ## Pending
 
@@ -40,7 +41,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - [x] Heartbeat every 2 s each side; dot grey / green / yellow (>3.5 s) / red (>10 s)
 - [x] Lazy cleanup of rooms idle > 2 h when a new room is created; laptop deletes its room on close or after 2 h idle; phone "Disconnect" releases the lock
 - [x] R key on the laptop releases the phone and shows the QR again (backup phone)
-- [ ] BLOCKED (Ee): first HTTPS deploy to the droplet at estains-tech.com/apps/sunset-ticker/ (needed for real iPhone tests)
+- [x] First HTTPS deploy to the droplet at estains-tech.com/apps/sunset-ticker/ (FTP, build v=20261124140028, checked with curl) (2026-11-24)
 - [x] Local Firebase stand-in (`?fakedb`, src/ only, never in dist/) so pairing is testable without the Firebase project
 - Done check: pair from iPhone over mobile data; second phone is refused; turn phone Wi-Fi/data off → yellow then red within ~10 s; back on → green; room gone from the database after End session
 

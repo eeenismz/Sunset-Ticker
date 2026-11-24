@@ -430,7 +430,9 @@ html { overflow-x: hidden; }
 }
 .thumb-box img { position: relative; display: block; width: 100%; height: 100%; object-fit: contain; }
 
-.now-box { flex: 1 1 auto; min-height: 200px; margin-top: 12px; touch-action: none; /* the finger draws the laser, not a scroll */ }
+/* flex-basis 0: the current slide takes whatever height is left, so the view fits the screen
+   instead of growing to the picture's natural height (the page then scrolled). */
+.now-box { flex: 1 1 0; min-height: 160px; margin-top: 12px; touch-action: none; /* the finger draws the laser, not a scroll */ }
 .now-box.laser-on { box-shadow: var(--glow-pink); }
 /* Laser (M4): a red dot under the finger, so the presenter sees what the laptop shows */
 #laserDot {
@@ -455,8 +457,14 @@ html { overflow-x: hidden; }
   text-transform: uppercase;
   color: var(--text);
 }
-.next-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
-.next-box { flex: none; width: 42%; aspect-ratio: 16 / 10; }
+.next-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; margin-bottom: 14px; /* keeps a gap above Prev / Next */ }
+/* WebKit (every iPhone browser) squeezes boxes sized only by aspect-ratio when their column
+   runs short, and the picture then spills onto the buttons. Percentage padding is based on the
+   width and can't be squeezed, so the 16:10 box is built from it. Don't turn this back into aspect-ratio. */
+.next-box { flex: none; width: 42%; height: 0; padding-top: calc(42% * 10 / 16); }
+.next-box img { position: absolute; inset: 0; }
+/* Only the big current slide gives up height on short screens; the rows below keep their size. */
+#mainScreen > :not(.now-box) { flex-shrink: 0; }
 .next-tag { color: var(--text-soft); font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 
 .nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -510,8 +518,8 @@ html { overflow-x: hidden; }
 }
 .thumb-cell {
   position: relative;
-  aspect-ratio: 4 / 3;
-  padding: 0;
+  height: 0;
+  padding: 75% 0 0; /* 4:3 from the column width; aspect-ratio overlaps rows in WebKit (see .next-box) */
   border: 0;
   border-radius: var(--r-sm);
   overflow: hidden;
@@ -519,7 +527,7 @@ html { overflow-x: hidden; }
   box-shadow: inset 0 0 0 1px var(--line);
   cursor: pointer;
 }
-.thumb-cell img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.thumb-cell img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
 .thumb-cell .num {
   position: absolute;
   left: 5px;
