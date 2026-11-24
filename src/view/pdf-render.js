@@ -8,20 +8,38 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = CDN + 'build/pdf.worker.min.mjs';
 
 // Start the worker now (1.4 MB download on the first visit) instead of on the first PDF pick,
 // so "Opening your slides" doesn't also wait for it. Every PDF opened shares this one worker.
-const worker = new pdfjsLib.PDFWorker();
+// If it fails (network, or the worker crashed), it is thrown away and the next pick makes a new one.
+let worker = null;
+function getWorker() {
+  if (!worker || worker.destroyed) {
+    worker = new pdfjsLib.PDFWorker();
+    worker.promise.catch(() => {}); // reported by getDocument instead; avoids an unhandled rejection
+  }
+  return worker;
+}
+getWorker();
 
 // Open a PDF picked from the laptop. The bytes stay in memory, nothing is uploaded.
 // cMaps + standard fonts are needed for Thai/Japanese text and PDFs without embedded fonts;
 // without them PDF.js only warns in the console and the text goes missing.
 export async function openPdf(file) {
   const data = new Uint8Array(await file.arrayBuffer());
-  return pdfjsLib.getDocument({
-    data,
-    worker,
-    cMapUrl: CDN + 'cmaps/',
-    cMapPacked: true,
-    standardFontDataUrl: CDN + 'standard_fonts/',
-  }).promise;
+  const w = getWorker();
+  try {
+    return await pdfjsLib.getDocument({
+      data,
+      worker: w,
+      cMapUrl: CDN + 'cmaps/',
+      cMapPacked: true,
+      standardFontDataUrl: CDN + 'standard_fonts/',
+    }).promise;
+  } catch (err) {
+    // A bad or password-protected file is the file's fault; anything else may be a broken
+    // worker, so drop it and let the next pick start a fresh one.
+    const fileProblem = err && (err.name === 'InvalidPDFException' || err.name === 'PasswordException');
+    if (!fileProblem && worker === w) { w.destroy(); worker = null; }
+    throw err;
+  }
 }
 
 // Start rendering one page as large as fits inside boxW x boxH (CSS pixels), keeping its

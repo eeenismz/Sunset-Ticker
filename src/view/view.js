@@ -100,17 +100,26 @@ async function hideLoading() {
 }
 
 // ---------- Opening the PDF ----------
+// The loading screen always goes away at the end, whatever path openFile takes
+// (error, timeout or an unexpected throw), so it can never stay over the slides.
 fileEl.addEventListener('change', async () => {
   const file = fileEl.files[0];
   if (!file) return;
   showMsg('');
   showLoading('Opening your slides…', 0.35);
   try {
+    await openFile(file);
+  } finally {
+    hideLoading();
+  }
+});
+
+async function openFile(file) {
+  try {
     engine = await enginePromise;
   } catch (err) {
     showMsg("Can't load the PDF engine. This page needs internet.", true);
     fileEl.value = '';
-    hideLoading();
     return;
   }
   let doc;
@@ -121,7 +130,6 @@ fileEl.addEventListener('change', async () => {
       ? 'This PDF is password protected. Save a copy without a password and try again.'
       : 'Could not open that file. Please pick a PDF.', true);
     fileEl.value = '';
-    hideLoading();
     return;
   }
   // A newly picked PDF replaces the old one (same room, same phone).
@@ -138,11 +146,11 @@ fileEl.addEventListener('change', async () => {
   // Pair a phone if the relay works; otherwise go straight to the slides (keyboard only).
   if (!room) showLoading('Setting up the room…', 0.7);
   let r = null;
-  try { r = await relayPromise; } catch (err) { /* keyboard only */ }
+  // Same 8 s limit as room creation: a stalled network must not hold up the slides.
+  try { r = await withTimeout(relayPromise, 8000); } catch (err) { /* keyboard only */ }
   if (!r) {
     setDot(dotEl, 'grey');
     showStage();
-    hideLoading();
     return;
   }
   try {
@@ -159,8 +167,7 @@ fileEl.addEventListener('change', async () => {
     setDot(dotEl, 'red');
     showStage();
   }
-  hideLoading();
-});
+}
 
 // Firebase calls can hang while offline; give up after ms so the laptop falls back to keyboard-only.
 function withTimeout(promise, ms) {
