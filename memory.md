@@ -70,3 +70,4 @@
 - 2026-11-24 The laptop's file-change handler is async, so any throw inside it is silently swallowed. Anything shown at the start (like the loading screen) must be closed in a `finally`, not on each path.
 - 2026-11-25 A PDF.js 4.10 document opened with a shared `worker:` option can be destroyed without ending the worker, because PDF.js only ends workers it created itself. Bump `thumbRun` and drop cached page renders before calling `destroy()`, or the old thumbnail loop renders from a destroyed document.
 - 2026-11-25 `tests/run.sh` takes the test name and query as two separate arguments. A zsh loop with `set -- $t` doesn't split them, so call it once per case.
+- 2026-11-25 iOS saves the Home Screen icon when the shortcut is added. After changing apple-touch-icon, delete the shortcut and add it again to see the new one.

@@ -17,7 +17,11 @@ Full spec: `Sunset Ticker v1 Spec.md`. Tasks: `todo.md`.
 - Source lives in `src/`. Run `./build.sh` to copy it into `dist/` (the deploy folder) with a fresh cache-busting version stamp. No build tools needed.
 - Local test: http://localhost:8888/workplaces/sunset-ticker/dist/view/ (MAMP).
 - Local test without Firebase: add `?fakedb` to the `src/` URLs (laptop and phone in the same browser). Never shipped in `dist/`.
-- Automated tests: `tests/m3-steps.js`, `m4-steps.js` and `m5-steps.js` run with `tests/m2-cdp.mjs` on Node 24.
+- Automated tests (all on `src/` with the local stand-in, so they never touch the real Firebase):
+  - Laptop viewer: `tests/run.sh <name> "<query>"`, e.g. `tests/run.sh wide "pdf=wide60&w=1280&h=720"`.
+  - Laptop + phone: `tests/m3-steps.js`, `m4-steps.js`, `m5-steps.js` and `m6-steps.js` (picking a new PDF)
+    run with `tests/m2-cdp.mjs` on Node 24.
+  - Tests don't check `dist/`: open it once on MAMP before uploading.
 - Hosting: the droplet at estains-tech.com/apps/sunset-ticker/ (upload `dist/`).
 
 ### Firebase (one-time)
