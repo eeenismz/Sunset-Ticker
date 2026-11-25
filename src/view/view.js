@@ -134,7 +134,12 @@ async function openFile(file) {
   }
   // A newly picked PDF replaces the old one (same room, same phone).
   for (const k of [...cache.keys()]) evict(k);
+  // Free the old PDF's memory. Stop its thumbnail loop first so it doesn't render from a
+  // destroyed document. The shared worker stays alive (PDF.js only ends workers it created).
+  thumbRun++;
+  const oldPdf = pdf;
   pdf = doc;
+  if (oldPdf) oldPdf.destroy().catch(() => {});
   fileEl.value = ''; // so picking the same file again still fires "change"
   showMsg('');
   $('fileName').textContent = file.name;
@@ -520,6 +525,8 @@ async function startThumbs() {
       if (run !== thumbRun || room !== code) return; // checked right before the write
       if (url.length <= THUMB_MAX_CHARS) relay.set(`rooms/${code}/thumbs/${n}`, url).catch(() => {});
     } catch (err) {
+      // A newer PDF or a closed room cancelled this render: not a real failure.
+      if (run !== thumbRun || room !== code) return;
       console.warn('Thumbnail ' + n + ' failed', err);
     }
     await new Promise((r) => setTimeout(r, 20)); // let slide flips and taps run first
