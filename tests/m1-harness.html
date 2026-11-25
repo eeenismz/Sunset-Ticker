@@ -2,6 +2,8 @@
 <body style="margin:0"><pre id="out">running</pre><div id="host"></div>
 <script>
 // Usage: m1-harness.html?pdf=wide60&w=1280&h=720  (also ?pdf=fake for the non-PDF case)
+// Loads src/ with the fake relay (?fakedb): dist/ has the real Firebase config, so it would make
+// real rooms and stop on the pairing screen. The pairing screen is skipped with "Home" below.
 const q = new URLSearchParams(location.search);
 const W = +q.get('w') || 1280, H = +q.get('h') || 720, name = q.get('pdf') || 'wide60';
 const res = {checks: {}, errors: [], dpr: devicePixelRatio, w: W, h: H};
@@ -11,7 +13,8 @@ async function until(fn, ms = 15000) { const t = Date.now(); while (Date.now() -
   try {
     const f = document.createElement('iframe');
     f.style.cssText = `width:${W}px;height:${H}px;border:0;display:block`;
-    f.src = '../dist/view/'; document.getElementById('host').appendChild(f);
+    localStorage.removeItem('sunset-fakedb'); // fresh fake database each run
+    f.src = '../src/view/?fakedb'; document.getElementById('host').appendChild(f);
     await until(() => f.contentDocument && f.contentDocument.getElementById('file') && f.contentDocument.readyState === 'complete');
     const win = f.contentWindow, d = f.contentDocument;
     win.addEventListener('error', e => res.errors.push('err:' + e.message));
@@ -30,6 +33,11 @@ async function until(fn, ms = 15000) { const t = Date.now(); while (Date.now() -
       res.fileValue = input.value;
     } else {
       await until(() => canvasText());
+      // Wait for the room to be set up, then skip the pairing screen with a slide key (doesn't move the page).
+      await until(() => !d.getElementById('stage').hidden || !d.getElementById('roomCode').classList.contains('empty'));
+      if (d.getElementById('stage').hidden) key('Home');
+      await until(() => !d.getElementById('stage').hidden);
+      await sleep(800);
       const info = () => { const c = canvasText(); if (!c) return null; const r = c.getBoundingClientRect(); return {css: [r.width, r.height], back: [c.width, c.height], left: r.left, top: r.top, right: W - r.right, bottom: H - r.bottom}; };
       res.page1 = info();
       res.hint = !d.getElementById('hint').hidden;

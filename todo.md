@@ -3,6 +3,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] M1 test harness runs again: loads src/view/?fakedb (no real Firebase rooms from tests) and skips pairing with Home; wide60 1280x720, A4 1024x768 and bad-file cases all pass (2026-11-25)
 - [x] Laptop frees the old PDF (pdf.destroy()) when a new one is picked; stale thumbnail loop stopped first, its cancelled renders no longer warn; new tests/m6-steps.js (re-pick paired / unpaired / mid-thumbnails) 53/53, M3 20/20, M4 35/35, M5 53/53 (2026-11-25)
 - [x] Autopilot review fixes: loading screen always closes (try/finally), Firebase connect wait capped at 8 s, PDF worker recreated after a failure; re-tested (2026-11-24)
 - [x] Phone Prev/Next redesign (option C from product-designer): quiet outlined Prev square with chevron, big gradient Next pill; fits 390x700 / 390x844 / 430x760 without scroll; M3 20/20, M4 35/35, M5 53/53 (2026-11-24)
@@ -87,7 +88,6 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 - Done check: projector slides untouched; no third-party logos or artwork; looks right on iPhone and laptop
 
 ### Later (from review, not urgent)
-- [ ] Tests: the M1 harness (tests/run.sh) now stops on the pairing screen because dist/ has the real Firebase config; run it against src/ with ?fakedb or skip pairing
 - [ ] Phone: a code typed before Firebase finishes connecting shows "Can't reach the connection service"; wait for the connection instead (QR links already wait)
 - [ ] Optional: restrict the Firebase browser API key to estains-tech.com + localhost:8888 (Google Cloud → Credentials)
 - [ ] Rules: require `roomIndex/$code` when a room is created, so rooms made outside the app still get cleaned (needs write order check with real Firebase)
