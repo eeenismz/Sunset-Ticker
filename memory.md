@@ -41,6 +41,8 @@
 
 - 2026-11-24 Full screen on/off from the phone: dropped (Ee). Browsers only enter full screen after a click or key press on the laptop itself, so the phone could only ever exit it; F / click on the laptop is enough.
 
+- 2026-11-25 Clean-up: removed tests/m2-harness.html (unreferenced; tests/m3-harness.html covers the same laptop + phone setup and the M3–M5 suites run on it). Recover with `git show <commit>^:tests/m2-harness.html` if a pairing-only harness is needed.
+
 ## Gotchas
 - 2026-11-23 iOS Camera opens a scanned QR link in Safari, not in the installed Home Screen PWA (separate storage). The PWA needs its own way in: typing the 6-digit code (and optionally an in-app scanner). BarcodeDetector doesn't exist on iPhone.
 - 2026-11-23 Browsers only allow full screen after a click or key press on the laptop. It can't switch to full screen automatically when the phone pairs; the presenter clicks once (or presses F) before the service.
