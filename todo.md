@@ -3,6 +3,7 @@ Linear: Sunset Ticker (https://linear.app/estains/project/sunset-ticker-376333b6
 # Sunset Ticker — todo
 
 ## Done
+- [x] Laptop page /view/ links the same apple-touch-icon as the phone remote (Home Screen / favourites icon); not deployed yet (2026-11-25)
 - [x] M1 test harness runs again: loads src/view/?fakedb (no real Firebase rooms from tests) and skips pairing with Home; wide60 1280x720, A4 1024x768 and bad-file cases all pass (2026-11-25)
 - [x] Laptop frees the old PDF (pdf.destroy()) when a new one is picked; stale thumbnail loop stopped first, its cancelled renders no longer warn; new tests/m6-steps.js (re-pick paired / unpaired / mid-thumbnails) 53/53, M3 20/20, M4 35/35, M5 53/53 (2026-11-25)
 - [x] Autopilot review fixes: loading screen always closes (try/finally), Firebase connect wait capped at 8 s, PDF worker recreated after a failure; re-tested (2026-11-24)
